@@ -8,18 +8,52 @@
     <style>
       #main-container {
         max-width: 500px;
+        max-height: 80vh;
+      }
+      #main-list {
+        max-height: 75vh;
       }
     </style>
   </head>
   <body>
-    <div id="main-container" class="container">
+    <div id="main-container" class="container my-3">
+      {% if ssid and success %}
+      <div class="alert alert-success alert-dismissible fade show" role="alert">
+        Successfully connected to "{{ ssid }}"!
+        <button
+          type="button"
+          class="btn-close"
+          data-bs-dismiss="alert"
+          aria-label="Close"
+        ></button>
+      </div>
+      {% elif ssid and not success %}
+      <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        Failed to connect to "{{ ssid }}"!
+        <button
+          type="button"
+          class="btn-close"
+          data-bs-dismiss="alert"
+          aria-label="Close"
+        ></button>
+      </div>
+      {% endif %}
       <h1 class="text-center">Select WiFi Network</h1>
-      <div class="accordion accordian-flush" id="aps">
+      <div
+        id="main-list"
+        class="accordion accordian-flush overflow-auto"
+        id="aps"
+      >
         {% for ap in aps %}
         <div class="accordion-item">
           <h2 class="accordion-header" id="flush-heading-{{ ap['mac'] }}">
             <button
-              class="accordion-button collapsed"
+              class="
+                accordion-button
+                collapsed
+                {{ 'text-dark' if ap['secured'] else 'text-success' }}
+                {{ 'fw-bold' if ap['active'] else 'fw-normal' }}
+              "
               type="button"
               data-bs-toggle="collapse"
               data-bs-target="#flush-collapse-{{ ap['mac'] }}"
@@ -37,30 +71,30 @@
           >
             <div class="accordion-body">
               <form class="row g-3" action="/connect" method="POST">
-                <div class="col-auto">
-                  <label for="{{ ap['mac'] }}" class="visually-hidden"
-                    >mac</label
-                  >
-                  <input
-                    name="mac"
-                    type="hidden"
-                    readonly
-                    class="form-control-plaintext"
-                    id="{{ ap['mac'] }}"
-                    value="{{ ap['mac'] | replace('-', ':') }}"
-                  />
-                </div>
+                <input
+                  name="ssid"
+                  type="hidden"
+                  readonly
+                  class="form-control-plaintext"
+                  value="{{ ap['ssid'] }}"
+                />
+                <input
+                  name="mac"
+                  type="hidden"
+                  readonly
+                  class="form-control-plaintext"
+                  value="{{ ap['mac'] | replace('-', ':') }}"
+                />
                 <div class="col-auto">
                   <label for="password_{{ ap['mac'] }}" class="visually-hidden"
                     >password</label
                   >
-                  <input
-                    name="password"
-                    type="password"
-                    class="form-control"
-                    id="password_{{ ap['mac'] }}"
-                    placeholder="Password"
-                  />
+                  <!-- prettier-ignore -->
+                  <input name="password"
+                   {% if not ap['secured'] %}readonly{% endif %}
+                   type="text"
+                   class="form-control"
+                   id="password_{{ ap['mac'] }}" placeholder="{{ 'Password' if ap['secured'] else 'No Password Required' }}" />
                 </div>
                 <div class="col-auto">
                   <button type="submit" class="btn btn-primary mb-3">
