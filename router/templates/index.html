@@ -1,0 +1,81 @@
+<html>
+  <head>
+    <link
+      href="{{ url_for('static', path='/bootstrap.min.css') }}"
+      rel="stylesheet"
+    />
+    <script src="{{ url_for('static', path='/bootstrap.bundle.min.js') }}"></script>
+    <style>
+      #main-container {
+        max-width: 500px;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="main-container" class="container">
+      <h1 class="text-center">Select WiFi Network</h1>
+      <div class="accordion accordian-flush" id="aps">
+        {% for ap in aps %}
+        <div class="accordion-item">
+          <h2 class="accordion-header" id="flush-heading-{{ ap['mac'] }}">
+            <button
+              class="accordion-button collapsed"
+              type="button"
+              data-bs-toggle="collapse"
+              data-bs-target="#flush-collapse-{{ ap['mac'] }}"
+              aria-expanded="false"
+              aria-controls="flush-collapse-{{ ap['mac'] }}"
+            >
+              {{ ap['ssid'] }}
+            </button>
+          </h2>
+          <div
+            id="flush-collapse-{{ ap['mac'] }}"
+            class="accordion-collapse collapse"
+            aria-labelledby="flush-heading-{{ ap['mac'] }}"
+            data-bs-parent="#aps"
+          >
+            <div class="accordion-body">
+              <form class="row g-3" action="/connect" method="POST">
+                <div class="col-auto">
+                  <label for="{{ ap['mac'] }}" class="visually-hidden"
+                    >mac</label
+                  >
+                  <input
+                    name="mac"
+                    type="hidden"
+                    readonly
+                    class="form-control-plaintext"
+                    id="{{ ap['mac'] }}"
+                    value="{{ ap['mac'] | replace('-', ':') }}"
+                  />
+                </div>
+                <div class="col-auto">
+                  <label for="password_{{ ap['mac'] }}" class="visually-hidden"
+                    >password</label
+                  >
+                  <input
+                    name="password"
+                    type="password"
+                    class="form-control"
+                    id="password_{{ ap['mac'] }}"
+                    placeholder="Password"
+                  />
+                </div>
+                <div class="col-auto">
+                  <button type="submit" class="btn btn-primary mb-3">
+                    Connect
+                  </button>
+                </div>
+              </form>
+              <p class="text-secondary">
+                Signal strength: {{ ap['strength'] }}
+              </p>
+            </div>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+  </body>
+</html>
