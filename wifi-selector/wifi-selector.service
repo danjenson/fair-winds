@@ -1,0 +1,10 @@
+[Unit]
+Description=Web UI for WiFi network selection
+After=syslog.target network.target
+
+[Service]
+ExecStart=/data/repos/fair-winds/wifi-selector/run.sh
+Restart=on-abort
+
+[Install]
+WantedBy=multi-user.target
