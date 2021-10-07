@@ -14,7 +14,7 @@ from dbus.mainloop.glib import DBusGMainLoop
 DBusGMainLoop(set_as_default=True)
 import NetworkManager as nm
 
-cfg = dotenv_values('/etc/wifi-selector.network')
+cfg = dotenv_values('/etc/wifi-selector.conf')
 iface = cfg['EXTERNAL_WIFI_INTERFACE']
 dev = nm.NetworkManager.GetDeviceByIpIface(iface)
 app = FastAPI()
