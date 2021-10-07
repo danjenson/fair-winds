@@ -1,2 +1,4 @@
-#!/bin/sh
-cd $(dirname $0)/.. && cd wifi-selector && uvicorn wifi_selector:app --reload
+#!/usr/bin/env python
+import uvicorn
+
+uvicorn.run('wifi_selector.wifi_selector:app', reload=True)
