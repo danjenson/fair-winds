@@ -29,6 +29,7 @@ templates = Jinja2Templates(directory=app_dir.joinpath('templates'))
 def read_root(request: Request,
               ssid: Optional[str] = None,
               success: bool = False):
+    dev.RequestScan({})
     acs = [
         ac.SpecificObject.HwAddress
         for ac in nm.NetworkManager.ActiveConnections
