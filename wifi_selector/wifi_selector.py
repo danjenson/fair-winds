@@ -2,6 +2,7 @@
 from typing import Optional
 import os
 import subprocess
+import pathlib
 
 from dotenv import dotenv_values
 from fastapi import FastAPI, Request, Form
@@ -18,8 +19,9 @@ cfg = dotenv_values(os.path.expanduser('~/.network'))
 iface = cfg['EXTERNAL_WIFI_INTERFACE']
 dev = nm.NetworkManager.GetDeviceByIpIface(iface)
 app = FastAPI()
-app.mount("/static", StaticFiles(directory="static"), name="static")
-templates = Jinja2Templates(directory="templates")
+static_dir = pathlib.Path(__file__).parent.resolve().joinpath('static')
+app.mount("/static", StaticFiles(directory=static_dir), name='static')
+templates = Jinja2Templates(directory='templates')
 
 
 @app.get('/', response_class=HTMLResponse)

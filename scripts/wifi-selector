@@ -1,4 +1,5 @@
 #!/usr/bin/env python
 import uvicorn
 
-uvicorn.run('wifi_selector.wifi_selector:app', reload=True)
+if __name__ == '__main__':
+    uvicorn.run('wifi_selector.wifi_selector:app', reload=True)

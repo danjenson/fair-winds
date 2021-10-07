@@ -10,6 +10,7 @@ setuptools.setup(
     platform='OS Independent',
     url='https://github.com/danjenson/fair-winds',
     packages=setuptools.find_packages(),
+    include_package_data=True,
     scripts=[
         'scripts/wifi-selector',
     ],
