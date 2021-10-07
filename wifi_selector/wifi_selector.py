@@ -19,9 +19,11 @@ cfg = dotenv_values(os.path.expanduser('~/.network'))
 iface = cfg['EXTERNAL_WIFI_INTERFACE']
 dev = nm.NetworkManager.GetDeviceByIpIface(iface)
 app = FastAPI()
-static_dir = pathlib.Path(__file__).parent.resolve().joinpath('static')
-app.mount("/static", StaticFiles(directory=static_dir), name='static')
-templates = Jinja2Templates(directory='templates')
+app_dir = pathlib.Path(__file__).parent.resolve()
+app.mount("/static",
+          StaticFiles(directory=app_dir.joinpath('static')),
+          name='static')
+templates = Jinja2Templates(directory=app_dir.joinpath('templates'))
 
 
 @app.get('/', response_class=HTMLResponse)

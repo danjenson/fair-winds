@@ -4,13 +4,15 @@ setuptools.setup(
     name='fair-winds',
     version='0.0.1',
     author='Daniel Jenson',
-    author_email='djenson@stanford.edu',
-    description='software for on the boat',
+    author_email='daniel.a.jenson@gmail.com',
+    description='software for sailing',
     license='GNU GPLv3',
     platform='OS Independent',
     url='https://github.com/danjenson/fair-winds',
     packages=setuptools.find_packages(),
-    include_package_data=True,
+    package_data={
+        'wifi_selector': ['*', 'static/*', 'templates/*'],
+    },
     scripts=[
         'scripts/wifi-selector',
     ],
