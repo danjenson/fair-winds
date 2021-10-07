@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
 from typing import Optional
-import os
 import subprocess
 import pathlib
 
@@ -15,7 +14,7 @@ from dbus.mainloop.glib import DBusGMainLoop
 DBusGMainLoop(set_as_default=True)
 import NetworkManager as nm
 
-cfg = dotenv_values(os.path.expanduser('~/.network'))
+cfg = dotenv_values('/etc/wifi-selector.network')
 iface = cfg['EXTERNAL_WIFI_INTERFACE']
 dev = nm.NetworkManager.GetDeviceByIpIface(iface)
 app = FastAPI()
