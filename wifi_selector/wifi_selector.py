@@ -43,12 +43,14 @@ def read_root(request: Request,
     } for ap in dev.GetAccessPoints()],
                  key=lambda d: d['strength'],
                  reverse=True)
-    return templates.TemplateResponse('index.html', {
-        'request': request,
-        'ssid': ssid,
-        'success': success,
-        'aps': aps,
-    })
+    return templates.TemplateResponse(
+        'index.html', {
+            'request': request,
+            'name': cfg['NAME'],
+            'ssid': ssid,
+            'success': success,
+            'aps': aps,
+        })
 
 
 @app.post('/connect', response_class=RedirectResponse)
