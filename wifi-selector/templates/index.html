@@ -39,11 +39,7 @@
       </div>
       {% endif %}
       <h1 class="text-center">Select WiFi Network</h1>
-      <div
-        id="main-list"
-        class="accordion accordian-flush overflow-auto"
-        id="aps"
-      >
+      <div id="main-list" class="accordion accordian-flush overflow-auto">
         {% for ap in aps %}
         <div class="accordion-item">
           <h2 class="accordion-header" id="flush-heading-{{ ap['mac'] }}">
@@ -67,7 +63,7 @@
             id="flush-collapse-{{ ap['mac'] }}"
             class="accordion-collapse collapse"
             aria-labelledby="flush-heading-{{ ap['mac'] }}"
-            data-bs-parent="#aps"
+            data-bs-parent="#main-list"
           >
             <div class="accordion-body">
               <form class="row g-3" action="/connect" method="POST">
