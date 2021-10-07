@@ -20,9 +20,10 @@ setuptools.setup(
     ],
     python_requires='>=3.9',
     install_requires=[
+        'Jinja2==3.0.1',
         'aiofiles==0.7.0',
         'fastapi==0.68.2',
-        'Jinja2==3.0.1',
+        'python-dotenv==0.19.0',
         'python-multipart==0.0.5',
         'python-networkmanager==2.2',
         'uvicorn==0.15.0',

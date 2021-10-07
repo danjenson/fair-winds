@@ -1,2 +1,2 @@
 #!/bin/sh
-uvicorn router:app --reload
+cd $(dirname $0)/.. && cd wifi-selector && uvicorn wifi_selector:app --reload

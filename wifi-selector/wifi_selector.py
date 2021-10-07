@@ -1,7 +1,9 @@
 #!/usr/bin/env python3
 from typing import Optional
+import os
 import subprocess
 
+from dotenv import dotenv_values
 from fastapi import FastAPI, Request, Form
 from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.staticfiles import StaticFiles
@@ -12,7 +14,8 @@ from dbus.mainloop.glib import DBusGMainLoop
 DBusGMainLoop(set_as_default=True)
 import NetworkManager as nm
 
-iface = 'wlp82s0'  # change this accordingly
+cfg = dotenv_values(os.path.expanduser('~/.network'))
+iface = cfg['EXTERNAL_WIFI_INTERFACE']
 dev = nm.NetworkManager.GetDeviceByIpIface(iface)
 app = FastAPI()
 app.mount("/static", StaticFiles(directory="static"), name="static")
