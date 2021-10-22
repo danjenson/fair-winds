@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 from typing import Optional
-import subprocess
+import os
 import pathlib
+import subprocess
 
-from dotenv import dotenv_values
 from fastapi import FastAPI, Request, Form
 from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.staticfiles import StaticFiles
@@ -36,9 +36,12 @@ subprocess.run([
                check=True)
 
 # setup wifi selector
-cfg = dotenv_values('/etc/wifi-selector.conf')
-iface = cfg['INTERNAL_WIFI_INTERFACE']
-ifaces = [dev.Interface for dev in nm.NetworkManager.GetDevices()]
+# TODO use longest inteface name under assumption it is external
+ifaces = [
+    dev.Interface for dev in nm.NetworkManager.GetDevices()
+    if dev.DeviceType == 2  # Wireless
+]
+iface = ifaces[0]
 if cfg['EXTERNAL_WIFI_INTERFACE'] in ifaces:
     iface = cfg['EXTERNAL_WIFI_INTERFACE']
 dev = nm.NetworkManager.GetDeviceByIpIface(iface)
@@ -70,9 +73,10 @@ def read_root(request: Request,
                  key=lambda d: d['strength'],
                  reverse=True)
     return templates.TemplateResponse(
-        'index.html', {
+        'index.html',
+        {
             'request': request,
-            'name': cfg['NAME'],
+            'name': os.uname().nodename,  # hostname
             'ssid': ssid,
             'success': success,
             'aps': aps,
