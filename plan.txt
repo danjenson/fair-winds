@@ -34,7 +34,6 @@ WINNER:
   - can cast from android and windows
 - raspberry pi 4
   - WiFi:
-    - 
     - fastapi
     - python-networkmanager
   - LAN

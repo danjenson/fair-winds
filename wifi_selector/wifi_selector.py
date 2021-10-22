@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
 from typing import Optional
-import os
+import argparse
 import pathlib
 import subprocess
+import sys
 
 from fastapi import FastAPI, Request, Form
 from fastapi.responses import HTMLResponse, RedirectResponse
@@ -14,8 +15,37 @@ from dbus.mainloop.glib import DBusGMainLoop
 DBusGMainLoop(set_as_default=True)
 import NetworkManager as nm
 
-# TODO
-# dynamically run create_ap command
+# longer wireless device names usually indicate external devices, i.e.
+# an internal device might be called wlp82s0, while an external device
+# might be called wlp0s20f0u1; the defaults assume that the longer name
+# i.e. the external device should be used for scanning and picking up
+# external networks, under the assumption that it is likely more powerful
+# than the internal, built-in wifi device, and the built-in device will
+# be used for creating a local network
+n_dev = sorted([(len(dev.Interface), dev)
+                for dev in nm.NetworkManager.GetDevices()
+                if dev.Interface.startswith('wl')],
+               reverse=True)
+dev = n_dev[0][1]
+internal_iface, external_iface = dev.Interface, dev.Interface
+# if more than 1, use the 2nd (likely built-in) for the internal network
+if len(n_dev) > 1:
+    internal_iface = n_dev[1][1].Interface
+
+# parse command line arguments
+parser = argparse.ArgumentParser(
+    prog=sys.argv[0], formatter_class=argparse.ArgumentDefaultsHelpFormatter)
+parser.add_argument('name', help='name (SSID) of local network')
+parser.add_argument('password', help='password for local network')
+parser.add_argument('-i',
+                    '--internal_iface',
+                    default=internal_iface,
+                    help='internal interface')
+parser.add_argument('-e',
+                    '--external_iface',
+                    default=external_iface,
+                    help='external interface')
+args = parser.parse_args(sys.argv[1:])
 
 # allows external traffic to be routed to local loopback
 subprocess.run(['sysctl', 'net.ipv4.conf.all.route_localnet=1'], check=True)
@@ -36,17 +66,23 @@ subprocess.run([
     '127.0.0.1:8000',
 ],
                check=True)
+# create local network
+subprocess.Popen([
+    '/usr/bin/create_ap',
+    '--ieee80211n',
+    '--ht_capab',
+    '[HT40+]',
+    '--freq-band',
+    '2.4',  # TODO: update when 5ghz becomes default
+    '-g',
+    '192.168.12.1',
+    args.internal_iface,
+    args.external_iface,
+    args.name,
+    args.password,
+])
 
-# NOTE: use longest wireless interface name; this is a hack
-# internal devices are usually named something like wlp82s0, while
-# external devices are usually named somehting like wlp0s20f0u1;
-# this assumes if you have an external wifi devices, this is what you
-# want to use for scanning
-n_dev = sorted([(len(dev.Interface), dev)
-                for dev in nm.NetworkManager.GetDevices()
-                if dev.Interface.startswith('wl')],
-               reverse=True)
-dev = n_dev[0][1]
+# setup server for selecting wifi
 app = FastAPI()
 app_dir = pathlib.Path(__file__).parent.resolve()
 app.mount("/static",
@@ -75,10 +111,9 @@ def read_root(request: Request,
                  key=lambda d: d['strength'],
                  reverse=True)
     return templates.TemplateResponse(
-        'index.html',
-        {
+        'index.html', {
             'request': request,
-            'name': os.uname().nodename,  # hostname
+            'name': args.name,
             'ssid': ssid,
             'success': success,
             'aps': aps,
@@ -91,7 +126,7 @@ def connect(ssid: str = Form(...),
             password: Optional[str] = Form(None)):
     # subprocess in python protects against shell injection
     # https://docs.python.org/3/library/subprocess.html#security-considerations
-    cmd = f'nmcli device wifi connect {mac} ifname {dev.Interface}'
+    cmd = f'nmcli device wifi connect {mac} ifname {args.external_iface}'
     if password:
         cmd += f' password {password}'
     try:

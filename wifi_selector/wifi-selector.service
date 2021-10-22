@@ -5,7 +5,7 @@ Wants=network-online.target
 
 [Service]
 Type=simple
-ExecStart=<python-path> <wifi-selector-path>
+ExecStart=<python-path> <wifi-selector-path> <name> <password>
 Restart=on-abort
 RestartSec=10
 

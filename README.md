@@ -16,7 +16,9 @@ This sets up a WiFi selector on port 8000. This requires `NetworkManager`,
 - `sudo vim /etc/systemd/system/wifi-selector.service`
   - replace `<python-path>` with the output of `which python`
   - replace `<wifi-selector-path>` with the output of `which wifi-selector`
-  - note that the outputs of `which <program>` should be the same except the
-    value after the last `/`
+    - note that the outputs of `which <program>` should be the same except the
+      value after the last `/`
+  - replace `<name>` with the name you want to call the local network
+  - replace `<password>` with the login password you want to use
 
 3. `systemctl enable wifi-selector.service` and reboot
