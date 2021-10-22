@@ -21,7 +21,7 @@ This sets up a WiFi selector on port 8000. This requires `NetworkManager`,
 - `sudo cp <path>/control_panel/control-panel.service /etc/systemd/system/`
 - `sudo vim /etc/systemd/system/control-panel.service`
   - replace `<python-path>` with the output of `which python`
-  - replace `<wifi-selector-path>` with the output of `which wifi-selector`
+  - replace `<control-panel-path>` with the output of `which control-panel`
     - note that the outputs of `which <program>` should be the same except the
       value after the last `/`
   - replace `<name>` with the name you want to call the local network

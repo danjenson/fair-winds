@@ -1,11 +1,11 @@
 [Unit]
-Description=Web UI for WiFi network selection
+Description=Control Panel for Boat Software
 After=network-online.target
 Wants=network-online.target
 
 [Service]
 Type=simple
-ExecStart=<python-path> <wifi-selector-path> <name> <password>
+ExecStart=<python-path> <control-panel-path> <name> <password>
 Restart=on-abort
 RestartSec=10
 
