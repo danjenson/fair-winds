@@ -1,6 +1,11 @@
 # wifi-selector
 
-This sets up a WiFi selector on port 8000. This requires NetworkManager.
+This sets up a WiFi selector on port 8000. This requires `NetworkManager`,
+`iptables`, and
+[linux-wifi-selector](https://github.com/lakinduakash/linux-wifi-hotspot).
+
+[translate iptables to nftables](https://wiki.nftables.org/wiki-nftables/index.php/Moving_from_iptables_to_nftables)
+[nftables port fowarding](https://jensd.be/1086/linux/forward-a-tcp-port-to-another-ip-or-port-using-nat-with-nftables)
 
 ## Running
 
@@ -29,6 +34,4 @@ This sets up a WiFi selector on port 8000. This requires NetworkManager.
   - note that the outputs of `which <program>` should be the same except the
     value after the last `/`
 
-3. `systemctl daemon-reload`
-4. `systemctl enable --now wifi-selector.service`
-5. `systemctl status wifi-selector.service`
+3. `systemctl enable wifi-selector.service` and reboot

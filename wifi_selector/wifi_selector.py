@@ -14,8 +14,33 @@ from dbus.mainloop.glib import DBusGMainLoop
 DBusGMainLoop(set_as_default=True)
 import NetworkManager as nm
 
+# setup network
+# allows external traffic to be routed to local loopback
+subprocess.run(['sysctl', 'net.ipv4.conf.all.route_localnet=1'], check=True)
+# routes traffic from port 80 to localhost:8000 (wifi selector server)
+subprocess.run([
+    'iptables',
+    '-t',
+    'nat',
+    '-A',
+    'PREROUTING',
+    '-p',
+    'tcp',
+    '--dport',
+    '80',
+    '-j',
+    'DNAT',
+    '--to-destination',
+    '127.0.0.1:8000',
+],
+               check=True)
+
+# setup wifi selector
 cfg = dotenv_values('/etc/wifi-selector.conf')
-iface = cfg['EXTERNAL_WIFI_INTERFACE']
+iface = cfg['INTERNAL_WIFI_INTERFACE']
+ifaces = [dev.Interface for dev in nm.NetworkManager.GetDevices()]
+if cfg['EXTERNAL_WIFI_INTERFACE'] in ifaces:
+    iface = cfg['EXTERNAL_WIFI_INTERFACE']
 dev = nm.NetworkManager.GetDeviceByIpIface(iface)
 app = FastAPI()
 app_dir = pathlib.Path(__file__).parent.resolve()
