@@ -11,10 +11,10 @@ setuptools.setup(
     url='https://github.com/danjenson/fair-winds',
     packages=setuptools.find_packages(),
     package_data={
-        'wifi_selector': ['*', 'static/*', 'templates/*'],
+        'control_panel': ['*', 'static/*', 'templates/*'],
     },
     scripts=[
-        'scripts/wifi-selector',
+        'scripts/control-panel',
     ],
     classifiers=[
         'Programming Language :: Python :: 3',
