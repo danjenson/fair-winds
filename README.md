@@ -1,5 +1,7 @@
 # wifi-selector
 
+# TODO: select 1st most powerful external and then second, name ssid after hostname
+
 This sets up a WiFi selector on port 8000. This requires `NetworkManager`,
 `iptables`, and
 [linux-wifi-selector](https://github.com/lakinduakash/linux-wifi-hotspot).
