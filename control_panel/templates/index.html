@@ -1,6 +1,6 @@
 <html>
   <head>
-    <title>{{ name }} WiFi</title>
+    <title>{{ name }} Control Panel</title>
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <link
       href="{{ url_for('static', path='/bootstrap.min.css') }}"
@@ -12,104 +12,187 @@
         max-width: 500px;
         max-height: 80vh;
       }
-      #main-list {
+      #wifi-list {
         max-height: 75vh;
       }
     </style>
   </head>
   <body>
     <div id="main-container" class="container my-3">
-      {% if ssid and success %}
-      <div class="alert alert-success alert-dismissible fade show" role="alert">
-        Successfully connected to "{{ ssid }}"!
-        <button
-          type="button"
-          class="btn-close"
-          data-bs-dismiss="alert"
-          aria-label="Close"
-        ></button>
-      </div>
-      {% elif ssid and not success %}
-      <div class="alert alert-danger alert-dismissible fade show" role="alert">
-        Failed to connect to "{{ ssid }}"!
-        <button
-          type="button"
-          class="btn-close"
-          data-bs-dismiss="alert"
-          aria-label="Close"
-        ></button>
-      </div>
-      {% endif %}
-      <h1 class="text-center">{{ name }} WiFi</h1>
-      <p class="text-center text-secondary">
-        Scanning and connecting can take a minute -- be patient!
-      </p>
-      <div id="main-list" class="accordion accordian-flush overflow-auto">
-        {% for ap in aps %}
-        <div class="accordion-item">
-          <h2 class="accordion-header" id="flush-heading-{{ ap['mac'] }}">
-            <button
-              class="
+      <nav>
+        <div
+          class="nav nav-tabs justify-content-center nav-fill"
+          id="nav-tab"
+          role="tablist"
+        >
+          <button
+            class="nav-link active"
+            id="nav-wifi-tab"
+            data-bs-toggle="tab"
+            data-bs-target="#wifi-tab-content"
+            type="button"
+            role="tab"
+            aria-controls="wifi-tab-content"
+            aria-selected="true"
+          >
+            WiFi
+          </button>
+          <button
+            class="nav-link"
+            id="nav-dvd-tab"
+            data-bs-toggle="tab"
+            data-bs-target="#dvd-tab-content"
+            type="button"
+            role="tab"
+            aria-controls="dvd-tab-content"
+            aria-selected="false"
+          >
+            DVD
+          </button>
+          <button
+            class="nav-link"
+            id="nav-admin-tab"
+            data-bs-toggle="tab"
+            data-bs-target="#admin-tab-content"
+            type="button"
+            role="tab"
+            aria-controls="admin-tab-content"
+            aria-selected="false"
+          >
+            Admin
+          </button>
+        </div>
+      </nav>
+      <div class="tab-content" id="nav-tabContent">
+        <div
+          class="tab-pane fade show active"
+          id="wifi-tab-content"
+          role="tabpanel"
+          aria-labelledby="nav-wifi-tab"
+        >
+          <div id="wifi-container" class="container my-3">
+            {% if ssid and success %}
+            <div
+              class="alert alert-success alert-dismissible fade show"
+              role="alert"
+            >
+              Successfully connected to "{{ ssid }}"!
+              <button
+                type="button"
+                class="btn-close"
+                data-bs-dismiss="alert"
+                aria-label="Close"
+              ></button>
+            </div>
+            {% elif ssid and not success %}
+            <div
+              class="alert alert-danger alert-dismissible fade show"
+              role="alert"
+            >
+              Failed to connect to "{{ ssid }}"!
+              <button
+                type="button"
+                class="btn-close"
+                data-bs-dismiss="alert"
+                aria-label="Close"
+              ></button>
+            </div>
+            {% endif %}
+            <p class="text-center text-secondary">
+              Scanning can take a minute -- be patient!
+            </p>
+            <div id="wifi-list" class="accordion accordian-flush overflow-auto">
+              {% for ap in aps %}
+              <div class="accordion-item">
+                <h2 class="accordion-header" id="flush-heading-{{ ap['mac'] }}">
+                  <button
+                    class="
                 accordion-button
                 collapsed
                 {{ 'text-dark' if ap['secured'] else 'text-success' }}
                 {{ 'fw-bold' if ap['active'] else 'fw-normal' }}
               "
-              type="button"
-              data-bs-toggle="collapse"
-              data-bs-target="#flush-collapse-{{ ap['mac'] }}"
-              aria-expanded="false"
-              aria-controls="flush-collapse-{{ ap['mac'] }}"
-            >
-              {{ ap['ssid'] }}
-            </button>
-          </h2>
-          <div
-            id="flush-collapse-{{ ap['mac'] }}"
-            class="accordion-collapse collapse"
-            aria-labelledby="flush-heading-{{ ap['mac'] }}"
-            data-bs-parent="#main-list"
-          >
-            <div class="accordion-body">
-              <form class="row g-3" action="/connect" method="POST">
-                <input
-                  name="ssid"
-                  type="hidden"
-                  readonly
-                  class="form-control-plaintext"
-                  value="{{ ap['ssid'] }}"
-                />
-                <input
-                  name="mac"
-                  type="hidden"
-                  readonly
-                  class="form-control-plaintext"
-                  value="{{ ap['mac'] | replace('-', ':') }}"
-                />
-                <div class="col-auto">
-                  <label for="password_{{ ap['mac'] }}" class="visually-hidden"
-                    >password</label
+                    type="button"
+                    data-bs-toggle="collapse"
+                    data-bs-target="#flush-collapse-{{ ap['mac'] }}"
+                    aria-expanded="false"
+                    aria-controls="flush-collapse-{{ ap['mac'] }}"
                   >
-                  <!-- prettier-ignore -->
-                  <input name="password"
+                    {{ ap['ssid'] }}
+                  </button>
+                </h2>
+                <div
+                  id="flush-collapse-{{ ap['mac'] }}"
+                  class="accordion-collapse collapse"
+                  aria-labelledby="flush-heading-{{ ap['mac'] }}"
+                  data-bs-parent="#main-list"
+                >
+                  <div class="accordion-body">
+                    <form class="row g-3" action="/connect" method="POST">
+                      <input
+                        name="ssid"
+                        type="hidden"
+                        readonly
+                        class="form-control-plaintext"
+                        value="{{ ap['ssid'] }}"
+                      />
+                      <input
+                        name="mac"
+                        type="hidden"
+                        readonly
+                        class="form-control-plaintext"
+                        value="{{ ap['mac'] | replace('-', ':') }}"
+                      />
+                      <div class="col-auto">
+                        <label
+                          for="password_{{ ap['mac'] }}"
+                          class="visually-hidden"
+                          >password</label
+                        >
+                        <!-- prettier-ignore -->
+                        <input name="password"
                    {% if not ap['secured'] %}readonly{% endif %}
                    type="text"
                    class="form-control"
                    id="password_{{ ap['mac'] }}" placeholder="{{ 'Password' if ap['secured'] else 'No Password Required' }}" />
+                      </div>
+                      <div class="col-auto">
+                        <button type="submit" class="btn btn-primary mb-3">
+                          Connect
+                        </button>
+                      </div>
+                    </form>
+                    <p class="text-secondary">
+                      Signal strength: {{ ap['strength'] }}
+                    </p>
+                  </div>
                 </div>
-                <div class="col-auto">
-                  <button type="submit" class="btn btn-primary mb-3">
-                    Connect
-                  </button>
-                </div>
-              </form>
-              <p class="text-secondary">
-                Signal strength: {{ ap['strength'] }}
-              </p>
+              </div>
+              {% endfor %}
             </div>
           </div>
         </div>
-        {% endfor %}
+        <div
+          class="tab-pane fade"
+          id="dvd-tab-content"
+          role="tabpanel"
+          aria-labelledby="nav-dvd-tab"
+        >
+          <p>dvd content</p>
+        </div>
+        <div
+          class="tab-pane fade"
+          id="admin-tab-content"
+          role="tabpanel"
+          aria-labelledby="nav-admin-tab"
+        >
+          <form action="/refresh" method="POST">
+            <button type="submit" class="btn btn-primary mb-3">Refresh</button>
+          </form>
+          <form action="/reboot" method="POST">
+            <button type="submit" class="btn btn-primary mb-3">Reboot</button>
+          </form>
+        </div>
       </div>
     </div>
   </body>

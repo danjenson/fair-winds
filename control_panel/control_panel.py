@@ -14,6 +14,7 @@ from dbus.mainloop.glib import DBusGMainLoop
 
 DBusGMainLoop(set_as_default=True)
 import NetworkManager as nm
+import uvicorn
 
 # longer wireless device names usually indicate external devices, i.e.
 # an internal device might be called wlp82s0, while an external device
@@ -135,3 +136,24 @@ def connect(ssid: str = Form(...),
         return RedirectResponse(f'/?ssid={ssid}&success=false',
                                 status_code=303)
     return RedirectResponse(f'/?ssid={ssid}&success=true', status_code=303)
+
+@app.post('/refresh', response_class=RedirectResponse)
+def refresh():
+    try:
+        subprocess.run(['systemctl', 'restart', 'control-panel'])
+    except subprocess.CalledProcessError:
+        return RedirectResponse('/?success=false')
+    return RedirectResponse('/')
+
+
+@app.post('/reboot', response_class=RedirectResponse)
+def reboot():
+    try:
+        subprocess.run(['reboot'])
+    except subprocess.CalledProcessError:
+        return RedirectResponse('/?success=false')
+    return RedirectResponse('/')
+
+
+if __name__ == '__main__':
+    uvicorn.run('control_panel:app', timeout_keep_alive=300)
