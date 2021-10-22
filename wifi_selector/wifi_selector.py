@@ -36,10 +36,12 @@ subprocess.run([
                check=True)
 
 # setup wifi selector
-# TODO use longest inteface name under assumption it is external
+# TODO
+# use longest inteface name under assumption it is external
+# dynamically run create_ap command
 ifaces = [
     dev.Interface for dev in nm.NetworkManager.GetDevices()
-    if dev.DeviceType == 2  # Wireless
+    if dev.DeviceType == 2  # wireless devices
 ]
 iface = ifaces[0]
 if cfg['EXTERNAL_WIFI_INTERFACE'] in ifaces:
