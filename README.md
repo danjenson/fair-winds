@@ -13,7 +13,8 @@ This sets up a WiFi selector on port 8000. This requires `NetworkManager`,
   changing the interface after the `=`; you can list network device interfaces
   with with `nmcli device`; you can use the same interface for internal and
   external connections, although it's more common to have an external antenna
-  that plugs in via a USB port for greater range, as here:
+  that plugs in via a USB port for greater range, as below. If the external
+  isn't available, it will default to the internal wifi device.
   - `NAME=Fair Winds`
   - `INTERNAL_WIFI_INTERFACE=wlp82s0`
   - `EXTERNAL_WIFI_INTERFACE=wlp0s20f0u1`
