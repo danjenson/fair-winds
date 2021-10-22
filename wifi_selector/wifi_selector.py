@@ -129,9 +129,9 @@ def connect(ssid: str = Form(...),
     cmd = f'nmcli device wifi connect {mac} ifname {args.external_iface}'
     if password:
         cmd += f' password {password}'
-    try:
-        subprocess.run(cmd.split(), check=True)
-    except subprocess.CalledProcessError:
+    # nmcli always returns exit code 0, so must check stderr
+    if subprocess.run(cmd.split(), stderr=subprocess.PIPE,
+                      encoding='utf-8').stderr:
         return RedirectResponse(f'/?ssid={ssid}&success=false',
                                 status_code=303)
     return RedirectResponse(f'/?ssid={ssid}&success=true', status_code=303)
