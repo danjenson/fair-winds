@@ -14,7 +14,9 @@ from dbus.mainloop.glib import DBusGMainLoop
 DBusGMainLoop(set_as_default=True)
 import NetworkManager as nm
 
-# setup network
+# TODO
+# dynamically run create_ap command
+
 # allows external traffic to be routed to local loopback
 subprocess.run(['sysctl', 'net.ipv4.conf.all.route_localnet=1'], check=True)
 # routes traffic from port 80 to localhost:8000 (wifi selector server)
@@ -35,18 +37,16 @@ subprocess.run([
 ],
                check=True)
 
-# setup wifi selector
-# TODO
-# use longest inteface name under assumption it is external
-# dynamically run create_ap command
-ifaces = [
-    dev.Interface for dev in nm.NetworkManager.GetDevices()
-    if dev.DeviceType == 2  # wireless devices
-]
-iface = ifaces[0]
-if cfg['EXTERNAL_WIFI_INTERFACE'] in ifaces:
-    iface = cfg['EXTERNAL_WIFI_INTERFACE']
-dev = nm.NetworkManager.GetDeviceByIpIface(iface)
+# NOTE: use longest wireless interface name; this is a hack
+# internal devices are usually named something like wlp82s0, while
+# external devices are usually named somehting like wlp0s20f0u1;
+# this assumes if you have an external wifi devices, this is what you
+# want to use for scanning
+n_dev = sorted([(len(dev.Interface), dev)
+                for dev in nm.NetworkManager.GetDevices()
+                if dev.Interface.startswith('wl')],
+               reverse=True)
+dev = n_dev[0][1]
 app = FastAPI()
 app_dir = pathlib.Path(__file__).parent.resolve()
 app.mount("/static",
@@ -91,7 +91,7 @@ def connect(ssid: str = Form(...),
             password: Optional[str] = Form(None)):
     # subprocess in python protects against shell injection
     # https://docs.python.org/3/library/subprocess.html#security-considerations
-    cmd = f'nmcli device wifi connect {mac} ifname {iface}'
+    cmd = f'nmcli device wifi connect {mac} ifname {dev.Interface}'
     if password:
         cmd += f' password {password}'
     try:

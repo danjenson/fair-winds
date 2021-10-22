@@ -1,28 +1,10 @@
 # wifi-selector
 
-# TODO: select 1st most powerful external and then second, name ssid after hostname
-
 This sets up a WiFi selector on port 8000. This requires `NetworkManager`,
 `iptables`, and
 [linux-wifi-selector](https://github.com/lakinduakash/linux-wifi-hotspot).
 
-[translate iptables to nftables](https://wiki.nftables.org/wiki-nftables/index.php/Moving_from_iptables_to_nftables)
-[nftables port fowarding](https://jensd.be/1086/linux/forward-a-tcp-port-to-another-ip-or-port-using-nat-with-nftables)
-
-## Running
-
-- create the file `/etc/wifi-selector.conf`, and add the following entries,
-  changing the interface after the `=`; you can list network device interfaces
-  with with `nmcli device`; you can use the same interface for internal and
-  external connections, although it's more common to have an external antenna
-  that plugs in via a USB port for greater range, as below. If the external
-  isn't available, it will default to the internal wifi device.
-  - `NAME=Fair Winds`
-  - `INTERNAL_WIFI_INTERFACE=wlp82s0`
-  - `EXTERNAL_WIFI_INTERFACE=wlp0s20f0u1`
-- run the program: `wifi-selector`
-
-## Automatically run on startup
+## Setup
 
 1. Find the location of the systemd service file:
 
