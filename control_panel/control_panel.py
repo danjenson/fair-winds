@@ -69,6 +69,24 @@ subprocess.run([
     '127.0.0.1:8000',
 ],
                check=True)
+
+# routes traffic from port 32400 (plex server) to localhost
+subprocess.run([
+    'iptables',
+    '-t',
+    'nat',
+    '-A',
+    'PREROUTING',
+    '-p',
+    'tcp',
+    '--dport',
+    '32400',
+    '-j',
+    'DNAT',
+    '--to-destination',
+    '127.0.0.1:32400',
+],
+               check=True)
 # create local network
 subprocess.Popen([
     '/usr/bin/create_ap',

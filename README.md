@@ -2,8 +2,11 @@
 
 -- TODO:
 
-- setup rpi4
 - Add UI for ripping dvds
+  - install and set up plex
+  - install handbrake, libdvdcss, vlc on arch
+  - get it working so you can show ripping progress in web UI
+- setup rpi4
 
 ## Raspberry Pi 4 Ubuntu Server Setup
 
