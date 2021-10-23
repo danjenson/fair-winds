@@ -12,6 +12,12 @@
         max-width: 500px;
         max-height: 80vh;
       }
+      #dvd-container {
+        padding: 25px;
+      }
+      #admin-container {
+        padding: 25px;
+      }
       #wifi-list {
         max-height: 75vh;
       }
@@ -178,7 +184,24 @@
           role="tabpanel"
           aria-labelledby="nav-dvd-tab"
         >
-          <p>dvd content</p>
+          <div id="dvd-container" class="container">
+            <form class="row g-3" action="/dvd" method="POST">
+              <div class="col">
+                <!-- prettier-ignore -->
+                <input
+                name="name"
+                {% if not dvd %}readonly{% endif %}
+                type="text"
+                class="form-control"
+                id="dvd-name-input"
+                placeholder="{{ dvd if dvd else 'No DVD found.' }}"
+              />
+              </div>
+              <div class="col-auto">
+                <button type="submit" class="btn btn-success mb-3">COPY</button>
+              </div>
+            </form>
+          </div>
         </div>
         <div
           class="tab-pane fade"
@@ -186,12 +209,24 @@
           role="tabpanel"
           aria-labelledby="nav-admin-tab"
         >
-          <form action="/refresh" method="POST">
-            <button type="submit" class="btn btn-primary mb-3">Refresh</button>
-          </form>
-          <form action="/reboot" method="POST">
-            <button type="submit" class="btn btn-primary mb-3">Reboot</button>
-          </form>
+          <div id="admin-container" class="container">
+            <div class="row justify-content-center">
+              <div class="col text-center">
+                <form action="/refresh" method="GET">
+                  <button type="submit" class="btn btn-success mb-3">
+                    Refresh
+                  </button>
+                </form>
+              </div>
+              <div class="col text-center">
+                <form action="/reboot" method="GET">
+                  <button type="submit" class="btn btn-danger mb-3">
+                    Reboot
+                  </button>
+                </form>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </div>

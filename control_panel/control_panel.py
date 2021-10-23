@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 from typing import Optional
 import argparse
+import glob
+import os
 import pathlib
 import subprocess
 import sys
@@ -111,6 +113,10 @@ def read_root(request: Request,
     } for ap in dev.GetAccessPoints()],
                  key=lambda d: d['strength'],
                  reverse=True)
+    dvd = None
+    dvds = glob.glob('/run/media/danj/*')
+    if dvds:
+        dvd = os.path.basename(dvds[0])
     return templates.TemplateResponse(
         'index.html', {
             'request': request,
@@ -118,6 +124,7 @@ def read_root(request: Request,
             'ssid': ssid,
             'success': success,
             'aps': aps,
+            'dvd': dvd,
         })
 
 
@@ -133,12 +140,13 @@ def connect(ssid: str = Form(...),
     # nmcli always returns exit code 0, so must check stderr
     if subprocess.run(cmd.split(), stderr=subprocess.PIPE,
                       encoding='utf-8').stderr:
-        return RedirectResponse(f'/?ssid={ssid}&success=false',
+        return RedirectResponse(f'/?success=false&ssid={ssid}',
                                 status_code=303)
-    return RedirectResponse(f'/?ssid={ssid}&success=true', status_code=303)
+    return RedirectResponse(f'/?success=true&ssid={ssid}', status_code=303)
 
-@app.post('/refresh', response_class=RedirectResponse)
-def refresh():
+
+@app.get('/refresh', response_class=RedirectResponse)
+def refresh(request: Request):
     try:
         subprocess.run(['systemctl', 'restart', 'control-panel'])
     except subprocess.CalledProcessError:
@@ -146,10 +154,22 @@ def refresh():
     return RedirectResponse('/')
 
 
-@app.post('/reboot', response_class=RedirectResponse)
-def reboot():
+@app.get('/reboot', response_class=RedirectResponse)
+def reboot(request: Request):
     try:
         subprocess.run(['reboot'])
+    except subprocess.CalledProcessError:
+        return RedirectResponse('/?success=false')
+    return RedirectResponse('/')
+
+
+@app.post('/dvd', response_class=RedirectResponse)
+def dvd(name: str = Form(...)):
+    try:
+        subprocess.run([
+            'ghb', '-i', '/media/VIDEO_TS', '-o', f'/data/media/dvds/{name}',
+            '-e', 'x264'
+        ])
     except subprocess.CalledProcessError:
         return RedirectResponse('/?success=false')
     return RedirectResponse('/')
