@@ -26,6 +26,7 @@ setuptools.setup(
         'Jinja2==3.0.1',
         'aiofiles==0.7.0',
         'fastapi==0.68.2',
+        'pybluez==0.23',
         'python-multipart==0.0.5',
         'python-networkmanager==2.2',
         'uvicorn==0.15.0',

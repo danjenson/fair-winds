@@ -13,10 +13,11 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 
 from dbus.mainloop.glib import DBusGMainLoop
-import dbus
 
 DBusGMainLoop(set_as_default=True)
 import NetworkManager as nm
+import bluetooth
+import dbus
 import uvicorn
 
 # parse command line arguments
@@ -63,51 +64,72 @@ aps = []
 @app.get('/', response_class=HTMLResponse)
 def read_root(request: Request,
               ssid: Optional[str] = None,
+              bt: Optional[str] = None,
               success: bool = False):
     global aps
     try:
-        dev.RequestScan({})
-        acs = [
-            ac.SpecificObject.Ssid
-            for ac in nm.NetworkManager.ActiveConnections
-        ]
-        all_aps = sorted([{
-            'ssid': ap.Ssid,
-            'strength': ap.Strength,
-            'freq': ap.Frequency,
-            'secured': ap.RsnFlags > 0,
-            'mac': ap.HwAddress.replace(':', '-'),
-            'active': ap.Ssid in acs,
-        } for ap in dev.GetAccessPoints() if ap.Ssid != args.ignore_ssid],
-                         key=lambda d: d['strength'],
-                         reverse=True)
-        # only list the strongest ap for each SSID
-        aps = []
-        seen = []
-        for ap in all_aps:
-            if ap['ssid'] not in seen:
-                aps.append(ap)
-                seen.append(ap['ssid'])
+        aps = wifi_scan()
     except dbus.exceptions.DBusException:
         pass
-    dvd = None
-    dvds = glob.glob('/run/media/pi/*')
-    if dvds:
-        dvd = os.path.basename(dvds[0])
+    bts = bluetooth_scan()
+    dvd = dvd_scan()
     return templates.TemplateResponse(
         'index.html', {
             'request': request,
             'ssid': ssid,
+            'bt': bt,
             'success': success,
             'aps': aps,
+            'bts': bts,
             'dvd': dvd,
         })
 
 
-@app.post('/connect', response_class=RedirectResponse)
-def connect(ssid: str = Form(...),
-            mac: str = Form(...),
-            password: Optional[str] = Form(None)):
+def wifi_scan():
+    dev.RequestScan({})
+    acs = [
+        ac.SpecificObject.Ssid for ac in nm.NetworkManager.ActiveConnections
+    ]
+    all_aps = sorted([{
+        'ssid': ap.Ssid,
+        'strength': ap.Strength,
+        'freq': ap.Frequency,
+        'secured': ap.RsnFlags > 0,
+        'mac': ap.HwAddress.replace(':', '-'),
+        'active': ap.Ssid in acs,
+    } for ap in dev.GetAccessPoints() if ap.Ssid != args.ignore_ssid],
+                     key=lambda d: d['strength'],
+                     reverse=True)
+    # only list the strongest ap for each SSID
+    strongest_aps = []
+    seen = []
+    for ap in all_aps:
+        if ap['ssid'] not in seen:
+            strongest_aps.append(ap)
+            seen.append(ap['ssid'])
+    return strongest_aps
+
+
+def bluetooth_scan():
+    return [{
+        'name': name,
+        'addr': addr,
+        'active': len(bluetooth.find_service(address=addr)) > 0,
+    } for addr, name in bluetooth.discover_devices(lookup_names=True)]
+
+
+def dvd_scan():
+    dvd = None
+    dvds = glob.glob('/run/media/pi/*')
+    if dvds:
+        dvd = os.path.basename(dvds[0])
+    return dvd
+
+
+@app.post('/wifi', response_class=RedirectResponse)
+def wifi(ssid: str = Form(...),
+         mac: str = Form(...),
+         password: Optional[str] = Form(None)):
     # subprocess in python protects against shell injection
     # https://docs.python.org/3/library/subprocess.html#security-considerations
     cmd = f'nmcli device wifi connect {mac} ifname {args.external_iface}'
@@ -119,6 +141,27 @@ def connect(ssid: str = Form(...),
         return RedirectResponse(f'/?success=false&ssid={ssid}',
                                 status_code=303)
     return RedirectResponse(f'/?success=true&ssid={ssid}', status_code=303)
+
+
+@app.post('/bluetooth')
+def bluetooth(addr: str = Form(...), name: str = Form(...)):
+    pair = f'bluetoothctl pair {addr}'
+    connect = f'bluetoothctl connect {addr}'
+    try:
+        p_pair = subprocess.run(pair.split(),
+                                stderr=subprocess.PIPE,
+                                encoding='utf-8',
+                                check=True)
+        p_conn = subprocess.run(connect.split(),
+                                stderr=subprocess.PIPE,
+                                encoding='utf-8',
+                                check=True)
+        if p_pair.stderr or p_conn.stderr:
+            return RedirectResponse(f'/?success=false&bt={name}',
+                                    status_code=303)
+    except Exception:
+        return RedirectResponse(f'/?success=false&bt={name}', status_code=303)
+    return RedirectResponse(f'/?success=true&bt={name}', status_code=303)
 
 
 @app.post('/dvd', response_class=RedirectResponse)

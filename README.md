@@ -9,7 +9,8 @@
 2. Update and install system packages
 
 - `sudo apt update && sudo apt upgrade`
-- `sudo apt install handbrake vlc firefox-esr libdvdcss2`
+- `sudo apt install handbrake vlc libdvdcss2`
+- `sudo hostnamectl set-hostname <name>`
 
 3. [Setup as access point](https://www.raspberrypi.com/documentation/computers/configuration.html#setting-up-a-routed-wireless-access-point)
 
@@ -54,11 +55,20 @@
 - `systemctl enable control-panel.service`
 
 5. Open firefox on boot
-  - set firefox home to `localhost:8000`
-  - `vim ~/.config/lxsession/LDXE-pi/autostart`
-    - `@firefox`
+
+- set chromium home to `localhost:8000`
+- `vim ~/.config/lxsession/LDXE-pi/autostart`
+
+```
+@lxpanel --profile LXDE-pi
+@pcmanfm --desktop --profile LXDE-pi
+#@xscreensaver -no-splash
+point-rpi
+@chromium-browser
+```
 
 ### Debugging
+
 - useful script to have on pi in `~/update-fair-winds.sh`:
   ```
   cd fair-winds \
@@ -69,6 +79,7 @@
   ```
 
 ### Extra
+
 - remap caps lock to control
   - `sudo vim /etc/default/keyboard`
     - `XKBOPTIONS="ctrl:nocaps"`
