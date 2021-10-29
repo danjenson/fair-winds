@@ -145,16 +145,13 @@ def wifi(ssid: str = Form(...),
 def bt(addr: str = Form(...), name: str = Form(...)):
     pair = f'bluetoothctl pair {addr}'
     connect = f'bluetoothctl connect {addr}'
+    subprocess.run(pair.split())
     try:
-        p_pair = subprocess.run(pair.split(),
-                                stderr=subprocess.PIPE,
-                                encoding='utf-8',
-                                check=True)
         p_conn = subprocess.run(connect.split(),
                                 stderr=subprocess.PIPE,
                                 encoding='utf-8',
                                 check=True)
-        if p_pair.stderr or p_conn.stderr:
+        if p_conn.stderr:
             return RedirectResponse(f'/?success=false&bt={name}',
                                     status_code=303)
     except Exception:
