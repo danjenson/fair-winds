@@ -88,25 +88,21 @@ def read_root(request: Request,
 
 def wifi_scan():
     dev.RequestScan({})
-    acs = [
-        ac.SpecificObject.HwAddress
-        for ac in nm.NetworkManager.ActiveConnections
-    ]
     all_aps = sorted([{
         'ssid': ap.Ssid,
         'strength': ap.Strength,
         'freq': ap.Frequency,
         'secured': ap.RsnFlags > 0,
         'mac': ap.HwAddress.replace(':', '-'),
-        'active': ap.Ssid in acs,
-    } for ap in dev.GetAccessPoints()],
+        'active': ap.Ssid == dev.ActiveAccessPoint.Ssid,
+    } for ap in dev.GetAccessPoints() if ap.Ssid != args.ignore_ssid],
                      key=lambda d: d['strength'],
                      reverse=True)
     # only list the strongest ap for each SSID
     strongest_aps = []
     seen = []
     for ap in all_aps:
-        if ap['ssid'] not in seen + [args.ignore_ssid]:
+        if ap['ssid'] not in seen:
             strongest_aps.append(ap)
             seen.append(ap['ssid'])
     return strongest_aps
@@ -115,7 +111,7 @@ def wifi_scan():
 def bluetooth_scan():
     return [{
         'name': name,
-        'addr': addr,
+        'addr': addr.replace(':', '-'),
         'active': len(bluetooth.find_service(address=addr)) > 0,
     } for addr, name in bluetooth.discover_devices(lookup_names=True)]
 

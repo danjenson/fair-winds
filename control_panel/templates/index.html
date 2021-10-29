@@ -268,7 +268,7 @@
                         type="hidden"
                         readonly
                         class="form-control-plaintext"
-                        value="{{ bt['addr'] }}"
+                        value="{{ bt['addr'] | replace('-', ':') }}"
                       />
                       <input
                         name="name"
