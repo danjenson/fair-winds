@@ -22,6 +22,7 @@ import uvicorn
 # parse command line arguments
 parser = argparse.ArgumentParser(
     prog=sys.argv[0], formatter_class=argparse.ArgumentDefaultsHelpFormatter)
+parser.add_argument('-i', '--ignore_ssid', help='ignore this SSID')
 parser.add_argument('-e',
                     '--external_iface',
                     default='wlan1',
@@ -77,7 +78,7 @@ def read_root(request: Request,
             'secured': ap.RsnFlags > 0,
             'mac': ap.HwAddress.replace(':', '-'),
             'active': ap.HwAddress in acs,
-        } for ap in dev.GetAccessPoints()],
+        } for ap in dev.GetAccessPoints() if ap.Ssid != args.ignore_ssid],
                      key=lambda d: d['strength'],
                      reverse=True)
     except dbus.exceptions.DBusException:
