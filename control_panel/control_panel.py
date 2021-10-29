@@ -143,8 +143,8 @@ def wifi(ssid: str = Form(...),
     return RedirectResponse(f'/?success=true&ssid={ssid}', status_code=303)
 
 
-@app.post('/bluetooth')
-def bluetooth(addr: str = Form(...), name: str = Form(...)):
+@app.post('/bt')
+def bt(addr: str = Form(...), name: str = Form(...)):
     pair = f'bluetoothctl pair {addr}'
     connect = f'bluetoothctl connect {addr}'
     try:
