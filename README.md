@@ -52,4 +52,18 @@
     - note that the outputs of `which <program>` should be the same except the
       value after the last `/`
 - `systemctl enable control-panel.service`
-- set firefox home to `localhost:8000` and reboot
+
+5. Open firefox on boot
+  - set firefox home to `localhost:8000`
+  - `vim ~/.config/lxsession/LDXE-pi/autostart`
+    - `@firefox`
+
+### Debugging
+- useful script to have on pi in `~/update-fair-winds.sh`:
+  ```
+  cd fair-winds \
+  && git pull --rebase \
+  && ./install-locally.sh \
+  && sudo systemctl restart control-panel \
+  && systemctl status control-panel
+  ```
