@@ -13,6 +13,7 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 
 from dbus.mainloop.glib import DBusGMainLoop
+import dbus
 
 DBusGMainLoop(set_as_default=True)
 import NetworkManager as nm
@@ -55,27 +56,32 @@ app.mount("/static",
           StaticFiles(directory=app_dir.joinpath('static')),
           name='static')
 templates = Jinja2Templates(directory=app_dir.joinpath('templates'))
+aps = []
 
 
 @app.get('/', response_class=HTMLResponse)
 def read_root(request: Request,
               ssid: Optional[str] = None,
               success: bool = False):
-    dev.RequestScan({})
-    acs = [
-        ac.SpecificObject.HwAddress
-        for ac in nm.NetworkManager.ActiveConnections
-    ]
-    aps = sorted([{
-        'ssid': ap.Ssid,
-        'strength': ap.Strength,
-        'freq': ap.Frequency,
-        'secured': ap.RsnFlags > 0,
-        'mac': ap.HwAddress.replace(':', '-'),
-        'active': ap.HwAddress in acs,
-    } for ap in dev.GetAccessPoints()],
-                 key=lambda d: d['strength'],
-                 reverse=True)
+    global aps
+    try:
+        dev.RequestScan({})
+        acs = [
+            ac.SpecificObject.HwAddress
+            for ac in nm.NetworkManager.ActiveConnections
+        ]
+        aps = sorted([{
+            'ssid': ap.Ssid,
+            'strength': ap.Strength,
+            'freq': ap.Frequency,
+            'secured': ap.RsnFlags > 0,
+            'mac': ap.HwAddress.replace(':', '-'),
+            'active': ap.HwAddress in acs,
+        } for ap in dev.GetAccessPoints()],
+                     key=lambda d: d['strength'],
+                     reverse=True)
+    except dbus.exceptions.DBusException:
+        pass
     dvd = None
     dvds = glob.glob('/run/media/pi/*')
     if dvds:
