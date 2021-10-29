@@ -67,3 +67,9 @@
   && sudo systemctl restart control-panel \
   && systemctl status control-panel
   ```
+
+### Extra
+- remap caps lock to control
+  - `sudo vim /etc/default/keyboard`
+    - `XKBOPTIONS="ctrl:nocaps"`
+  - `sudo dpkg-reconfigure keyboard-configuration`
