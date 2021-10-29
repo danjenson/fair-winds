@@ -59,6 +59,7 @@ app.mount("/static",
           name='static')
 templates = Jinja2Templates(directory=app_dir.joinpath('templates'))
 aps = []
+bts = []
 
 
 @app.get('/', response_class=HTMLResponse)
@@ -88,8 +89,8 @@ def read_root(request: Request,
 def wifi_scan():
     dev.RequestScan({})
     acs = [
-        ac.SpecificObject.Ssid for ac in nm.NetworkManager.ActiveConnections
-        if hasattr(ac.SpecificObject, 'Ssid')
+        ac.SpecificObject.HwAddress
+        for ac in nm.NetworkManager.ActiveConnections
     ]
     all_aps = sorted([{
         'ssid': ap.Ssid,
@@ -98,15 +99,14 @@ def wifi_scan():
         'secured': ap.RsnFlags > 0,
         'mac': ap.HwAddress.replace(':', '-'),
         'active': ap.Ssid in acs,
-    } for ap in dev.GetAccessPoints()
-                      if hasattr(ap, 'Ssid') and ap.Ssid != args.ignore_ssid],
+    } for ap in dev.GetAccessPoints()],
                      key=lambda d: d['strength'],
                      reverse=True)
     # only list the strongest ap for each SSID
     strongest_aps = []
     seen = []
     for ap in all_aps:
-        if ap['ssid'] not in seen:
+        if ap['ssid'] not in seen + [args.ignore_ssid]:
             strongest_aps.append(ap)
             seen.append(ap['ssid'])
     return strongest_aps
