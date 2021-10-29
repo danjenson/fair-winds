@@ -68,7 +68,7 @@ def read_root(request: Request,
     try:
         dev.RequestScan({})
         acs = [
-            ac.SpecificObject.HwAddress
+            ac.SpecificObject.Ssid
             for ac in nm.NetworkManager.ActiveConnections
         ]
         all_aps = sorted([{
@@ -77,7 +77,7 @@ def read_root(request: Request,
             'freq': ap.Frequency,
             'secured': ap.RsnFlags > 0,
             'mac': ap.HwAddress.replace(':', '-'),
-            'active': ap.HwAddress in acs,
+            'active': ap.Ssid in acs,
         } for ap in dev.GetAccessPoints() if ap.Ssid != args.ignore_ssid],
                          key=lambda d: d['strength'],
                          reverse=True)
