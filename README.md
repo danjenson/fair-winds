@@ -39,8 +39,11 @@
 - `mkdir ~/.ssh && ssh-keygen && cat id_rsa.pub`
 - copy and paste to github
 - `git clone git@github.com:danjenson/fair-winds.git`
+- `python3 -m venv ~/.venv/v && source ~/.venv/v/bin/activate`
 - `cd fair-winds && ./install-locally.sh`
-  - add `export PATH=~/.local/bin:$PATH` to `~/.bashrc`
+- add to end of `~/.bashrc`
+  - `source ~/.venv/v/bin/activate`
+  - `export PATH=~/.local/bin:$PATH`
 - `pip3 show fair-winds | grep Location` -> `<path>`
 - `sudo cp <path>/control_panel/control-panel.service /etc/systemd/system/`
 - `sudo vim /etc/systemd/system/control-panel.service`
@@ -48,4 +51,5 @@
   - replace `<control-panel-path>` with the output of `which control-panel`
     - note that the outputs of `which <program>` should be the same except the
       value after the last `/`
-- `systemctl enable control-panel.service` and reboot
+- `systemctl enable control-panel.service`
+- set firefox home to `localhost:8000` and reboot
