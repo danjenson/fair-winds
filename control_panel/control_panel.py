@@ -98,7 +98,8 @@ def wifi_scan():
         'secured': ap.RsnFlags > 0,
         'mac': ap.HwAddress.replace(':', '-'),
         'active': ap.Ssid in acs,
-    } for ap in dev.GetAccessPoints() if ap.Ssid != args.ignore_ssid],
+    } for ap in dev.GetAccessPoints()
+                      if hasattr(ap, 'Ssid') and ap.Ssid != args.ignore_ssid],
                      key=lambda d: d['strength'],
                      reverse=True)
     # only list the strongest ap for each SSID
