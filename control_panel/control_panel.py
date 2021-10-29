@@ -18,38 +18,18 @@ DBusGMainLoop(set_as_default=True)
 import NetworkManager as nm
 import uvicorn
 
-# longer wireless device names usually indicate external devices, i.e.
-# an internal device might be called wlp82s0, while an external device
-# might be called wlp0s20f0u1; the defaults assume that the longer name
-# i.e. the external device should be used for scanning and picking up
-# external networks, under the assumption that it is likely more powerful
-# than the internal, built-in wifi device, and the built-in device will
-# be used for creating a local network
-n_dev = sorted([(len(dev.Interface), dev)
-                for dev in nm.NetworkManager.GetDevices()
-                if dev.Interface.startswith('wl')],
-               reverse=True)
-dev = n_dev[0][1]
-internal_iface, external_iface = dev.Interface, dev.Interface
-# if more than 1, use the 2nd (likely built-in) for the internal network
-if len(n_dev) > 1:
-    internal_iface = n_dev[1][1].Interface
-
 # parse command line arguments
 parser = argparse.ArgumentParser(
     prog=sys.argv[0], formatter_class=argparse.ArgumentDefaultsHelpFormatter)
 parser.add_argument('name', help='name (SSID) of local network')
 parser.add_argument('password', help='password for local network')
-parser.add_argument('-i',
-                    '--internal_iface',
-                    default=internal_iface,
-                    help='internal interface')
 parser.add_argument('-e',
                     '--external_iface',
-                    default=external_iface,
-                    help='external interface')
+                    default='wlan1',
+                    help='external interface that scans for networks')
 args = parser.parse_args(sys.argv[1:])
 
+dev = nm.NetworkManager.GetDeviceByIpIface(args.external_iface)
 # allows external traffic to be routed to local loopback
 subprocess.run(['sysctl', 'net.ipv4.conf.all.route_localnet=1'], check=True)
 # routes traffic from port 80 to localhost:8000 (wifi selector server)
@@ -69,39 +49,6 @@ subprocess.run([
     '127.0.0.1:8000',
 ],
                check=True)
-
-# routes traffic from port 32400 (plex server) to localhost
-subprocess.run([
-    'iptables',
-    '-t',
-    'nat',
-    '-A',
-    'PREROUTING',
-    '-p',
-    'tcp',
-    '--dport',
-    '32400',
-    '-j',
-    'DNAT',
-    '--to-destination',
-    '127.0.0.1:32400',
-],
-               check=True)
-# create local network
-subprocess.Popen([
-    '/usr/bin/create_ap',
-    '--ieee80211n',
-    '--ht_capab',
-    '[HT40+]',
-    '--freq-band',
-    '2.4',  # TODO: update when 5ghz becomes default
-    '-g',
-    '192.168.12.1',
-    args.internal_iface,
-    args.external_iface,
-    args.name,
-    args.password,
-])
 
 # setup server for selecting wifi
 app = FastAPI()
@@ -132,7 +79,7 @@ def read_root(request: Request,
                  key=lambda d: d['strength'],
                  reverse=True)
     dvd = None
-    dvds = glob.glob('/run/media/danj/*')
+    dvds = glob.glob('/run/media/pi/*')
     if dvds:
         dvd = os.path.basename(dvds[0])
     return templates.TemplateResponse(
@@ -163,10 +110,13 @@ def connect(ssid: str = Form(...),
     return RedirectResponse(f'/?success=true&ssid={ssid}', status_code=303)
 
 
-@app.get('/refresh', response_class=RedirectResponse)
-def refresh(request: Request):
+@app.post('/dvd', response_class=RedirectResponse)
+def dvd(name: str = Form(...)):
     try:
-        subprocess.run(['systemctl', 'restart', 'control-panel'])
+        subprocess.run([
+            'ghb', '-i', '/media/VIDEO_TS', '-o', f'/data/media/dvds/{name}',
+            '-e', 'x264'
+        ])
     except subprocess.CalledProcessError:
         return RedirectResponse('/?success=false')
     return RedirectResponse('/')
@@ -181,13 +131,10 @@ def reboot(request: Request):
     return RedirectResponse('/')
 
 
-@app.post('/dvd', response_class=RedirectResponse)
-def dvd(name: str = Form(...)):
+@app.get('/poweroff', response_class=RedirectResponse)
+def poweroff(request: Request):
     try:
-        subprocess.run([
-            'ghb', '-i', '/media/VIDEO_TS', '-o', f'/data/media/dvds/{name}',
-            '-e', 'x264'
-        ])
+        subprocess.run(['shutdown', '-h', 'now'])
     except subprocess.CalledProcessError:
         return RedirectResponse('/?success=false')
     return RedirectResponse('/')
