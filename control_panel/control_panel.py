@@ -71,7 +71,7 @@ def read_root(request: Request,
             ac.SpecificObject.HwAddress
             for ac in nm.NetworkManager.ActiveConnections
         ]
-        aps = sorted([{
+        all_aps = sorted([{
             'ssid': ap.Ssid,
             'strength': ap.Strength,
             'freq': ap.Frequency,
@@ -79,15 +79,15 @@ def read_root(request: Request,
             'mac': ap.HwAddress.replace(':', '-'),
             'active': ap.HwAddress in acs,
         } for ap in dev.GetAccessPoints() if ap.Ssid != args.ignore_ssid],
-                     key=lambda d: d['strength'],
-                     reverse=True)
+                         key=lambda d: d['strength'],
+                         reverse=True)
         # only list the strongest ap for each SSID
-        strongest_aps = []
+        aps = []
         seen = []
-        for ap in aps:
-            if ap.Ssid not in seen:
-                strongest_aps.append(ap)
-                seen.append(ap.Ssid)
+        for ap in all_aps:
+            if ap['ssid'] not in seen:
+                aps.append(ap)
+                seen.append(ap['ssid'])
     except dbus.exceptions.DBusException:
         pass
     dvd = None
