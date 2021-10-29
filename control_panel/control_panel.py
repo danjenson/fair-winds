@@ -99,7 +99,7 @@ def read_root(request: Request,
             'request': request,
             'ssid': ssid,
             'success': success,
-            'aps': strongest_aps,
+            'aps': aps,
             'dvd': dvd,
         })
 
