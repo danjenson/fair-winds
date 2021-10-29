@@ -21,8 +21,6 @@ import uvicorn
 # parse command line arguments
 parser = argparse.ArgumentParser(
     prog=sys.argv[0], formatter_class=argparse.ArgumentDefaultsHelpFormatter)
-parser.add_argument('name', help='name (SSID) of local network')
-parser.add_argument('password', help='password for local network')
 parser.add_argument('-e',
                     '--external_iface',
                     default='wlan1',
@@ -85,7 +83,6 @@ def read_root(request: Request,
     return templates.TemplateResponse(
         'index.html', {
             'request': request,
-            'name': args.name,
             'ssid': ssid,
             'success': success,
             'aps': aps,
