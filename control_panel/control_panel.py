@@ -89,6 +89,7 @@ def wifi_scan():
     dev.RequestScan({})
     acs = [
         ac.SpecificObject.Ssid for ac in nm.NetworkManager.ActiveConnections
+        if hasattr(ac.SpecificObject, 'Ssid')
     ]
     all_aps = sorted([{
         'ssid': ap.Ssid,
@@ -97,8 +98,7 @@ def wifi_scan():
         'secured': ap.RsnFlags > 0,
         'mac': ap.HwAddress.replace(':', '-'),
         'active': ap.Ssid in acs,
-    } for ap in dev.GetAccessPoints()
-                      if hasattr(ap, 'Ssid') and ap.Ssid != args.ignore_ssid],
+    } for ap in dev.GetAccessPoints() if ap.Ssid != args.ignore_ssid],
                      key=lambda d: d['strength'],
                      reverse=True)
     # only list the strongest ap for each SSID
