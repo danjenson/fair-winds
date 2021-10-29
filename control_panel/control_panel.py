@@ -81,6 +81,13 @@ def read_root(request: Request,
         } for ap in dev.GetAccessPoints() if ap.Ssid != args.ignore_ssid],
                      key=lambda d: d['strength'],
                      reverse=True)
+        # only list the strongest ap for each SSID
+        strongest_aps = []
+        seen = []
+        for ap in aps:
+            if ap.Ssid not in seen:
+                strongest_aps.append(ap)
+                seen.append(ap.Ssid)
     except dbus.exceptions.DBusException:
         pass
     dvd = None
@@ -92,7 +99,7 @@ def read_root(request: Request,
             'request': request,
             'ssid': ssid,
             'success': success,
-            'aps': aps,
+            'aps': strongest_aps,
             'dvd': dvd,
         })
 
