@@ -157,7 +157,7 @@ def bt(addr: str = Form(...), name: str = Form(...)):
             subprocess.run(['pactl', 'set-default-sink', sinks[bname]],
                     check=True) 
     except Exception as e:
-        raise e
+        print(e, file=sys.stderr)
         return RedirectResponse(f'/?success=false&bt={name}', status_code=303)
     return RedirectResponse(f'/?success=true&bt={name}', status_code=303)
 
@@ -165,8 +165,9 @@ def audio_sinks():
     audio_items = subprocess.check_output(['pactl', 'list', 'short', 'sinks']).decode('utf-8').split('\n')
     audio_sinks = {}
     for item in audio_items:
-        idx, name, _ = item.split(' ', 2)
-        audio_sinks[name] = idx
+        if item:
+            idx, name, _ = item.split('\t', 2)
+            audio_sinks[name] = int(idx)
     return audio_sinks
 
 
