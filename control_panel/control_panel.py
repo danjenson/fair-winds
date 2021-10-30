@@ -151,7 +151,7 @@ def bt(addr: str = Form(...), name: str = Form(...)):
         if bname not in sinks:
             # TODO: add pairing
             # subprocess.run(['bluetoothctl', 'pair', addr])
-            subprocess.run(['bluetoothctl', 'connect', addr])
+            subprocess.run(['bluetoothctl', 'connect', addr], check=True)
         sinks = audio_sinks()
         if bname in sinks:
             subprocess.run(['pactl', 'set-default-sink', sinks[bname]],
