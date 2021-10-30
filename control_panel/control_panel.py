@@ -208,7 +208,7 @@ def bt_connect(addr):
 
 
 def bt_audio(addr):
-    for name, idx in audio_sinks.items():
+    for name, idx in audio_sinks().items():
         if addr.replace(':', '_') in name:
             subprocess.run(['pactl', 'set-default-sink', idx])
 
