@@ -182,10 +182,9 @@ def bt_connect(addr):
 
 
 def bt_audio(addr):
-    bname = 'bluez_sink.{}.a2dp_sink'.format(addr.replace(':', '_'))
-    sinks = audio_sinks()
-    if bname in sinks:
-        subprocess.run(['pactl', 'set-default-sink', sinks[bname]])
+    for name, idx in audio_sinks.items():
+        if addr.replace(':', '_') in name:
+            subprocess.run(['pactl', 'set-default-sink', idx])
 
 
 def audio_sinks():
