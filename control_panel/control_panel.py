@@ -162,7 +162,7 @@ def bt(addr: str = Form(...), name: str = Form(...)):
                     check=True) 
     except Exception as e:
         with open('/tmp/error_3.log', 'w') as f:
-            f.write(e)
+            f.write(str(e))
         return RedirectResponse(f'/?success=false&bt={name}', status_code=303)
     return RedirectResponse(f'/?success=true&bt={name}', status_code=303)
 
