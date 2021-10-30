@@ -147,20 +147,26 @@ def bt(addr: str = Form(...), name: str = Form(...)):
     addr_str = addr.replace(':', '_')
     bname = f'bluez_sink.{addr_str}.a2dp_sink'
     try:
-        # TODO: add pairing
-        # subprocess.run(['bluetoothctl', 'pair', addr])
-        subprocess.run(['bluetoothctl', 'connect', addr])
-        audio_items = subprocess.check_output(['pactl', 'list', 'short', 'sinks']).decode('utf-8').split('\n')
-        audio_sinks = {}
-        for item in audio_items:
-            idx, name, _ = item.split(' ', 2)
-            audio_sinks[name] = idx
-        if bname in audio_sinks:
-            subprocess.run(['pactl', 'set-default-sink', audio_sinks[bname]],
+        sinks = audio_sinks()
+        if bname not in sinks:
+            # TODO: add pairing
+            # subprocess.run(['bluetoothctl', 'pair', addr])
+            subprocess.run(['bluetoothctl', 'connect', addr])
+        sinks = audio_sinks()
+        if bname in sinks:
+            subprocess.run(['pactl', 'set-default-sink', sinks[bname]],
                     check=True) 
     except Exception:
         return RedirectResponse(f'/?success=false&bt={name}', status_code=303)
     return RedirectResponse(f'/?success=true&bt={name}', status_code=303)
+
+def audio_sinks():
+    audio_items = subprocess.check_output(['pactl', 'list', 'short', 'sinks']).decode('utf-8').split('\n')
+    audio_sinks = {}
+    for item in audio_items:
+        idx, name, _ = item.split(' ', 2)
+        audio_sinks[name] = idx
+    return audio_sinks
 
 
 @app.post('/dvd', response_class=RedirectResponse)
