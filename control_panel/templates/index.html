@@ -35,7 +35,7 @@
           role="tablist"
         >
           <button
-            class="nav-link active"
+            class="nav-link {% if not bt %}active{% endif %}"
             id="nav-wifi-tab"
             data-bs-toggle="tab"
             data-bs-target="#wifi-tab-content"
@@ -47,7 +47,7 @@
             WiFi
           </button>
           <button
-            class="nav-link"
+            class="nav-link {% if bt %}active{% endif %}"
             id="nav-bluetooth-tab"
             data-bs-toggle="tab"
             data-bs-target="#bluetooth-tab-content"
