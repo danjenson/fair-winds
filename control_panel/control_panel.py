@@ -161,6 +161,8 @@ def bt(addr: str = Form(...), name: str = Form(...)):
             subprocess.run(['pactl', 'set-default-sink', sinks[bname]],
                     check=True) 
     except Exception as e:
+        with open('/tmp/error_3.log', 'w') as f:
+            f.write(e)
         return RedirectResponse(f'/?success=false&bt={name}', status_code=303)
     return RedirectResponse(f'/?success=true&bt={name}', status_code=303)
 
