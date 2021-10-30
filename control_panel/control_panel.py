@@ -74,7 +74,7 @@ def read_root(request: Request,
     dvd = dvd_scan()
     # html does not like ':' in identifiers
     for ap in aps:
-        ap['mac'] = ap['addr'].replace(':', '-')
+        ap['mac'] = ap['mac'].replace(':', '-')
     for bt in bts:
         bt['addr'] = bt['addr'].replace(':', '-')
     return templates.TemplateResponse(
