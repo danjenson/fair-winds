@@ -165,16 +165,36 @@ def wifi(ssid: str = Form(...),
 @app.post('/bt')
 def bt(addr: str = Form(...), name: str = Form(...)):
     try:
-        bt_pair(addr)
-        bt_connect(addr)
+        if not bt_paired(addr):
+            bt_pair(addr)
+        if not bt_connected(addr):
+            bt_connect(addr)
         bt_audio(addr)
     except Exception:
         return RedirectResponse(f'/?success=false&bt={name}', status_code=303)
     return RedirectResponse(f'/?success=true&bt={name}', status_code=303)
 
 
+def bt_paired(addr):
+    items = subprocess.check_output(['bluetoothctl', 'paired-devices'
+                                     ]).decode('utf-8').split('\n')
+    for item in items:
+        if addr in item:
+            return True
+    return False
+
+
 def bt_pair(addr):
     subprocess.run(['bluetoothctl', 'pair', addr])
+
+
+def bt_connected(addr):
+    cmd = f'bluetoothctl info "{addr}" | grep -q "Connected: yes"'
+    try:
+        subprocess.run(cmd, shell=True, check=True)
+    except subprocess.CalledProcessError:
+        return False
+    return True
 
 
 def bt_connect(addr):
