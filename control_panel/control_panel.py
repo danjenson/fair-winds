@@ -149,7 +149,6 @@ def bt(addr: str = Form(...), name: str = Form(...)):
     with open('/tmp/error.log', 'w') as f:
         try:
             sinks = audio_sinks()
-            f.write(str(sinks))
             if bname not in sinks:
                 # TODO: add pairing
                 # subprocess.run(['bluetoothctl', 'pair', addr])
@@ -159,7 +158,6 @@ def bt(addr: str = Form(...), name: str = Form(...)):
                 subprocess.run(['pactl', 'set-default-sink', sinks[bname]],
                         check=True) 
         except Exception as e:
-            print(e, file=f)
             return RedirectResponse(f'/?success=false&bt={name}', status_code=303)
     return RedirectResponse(f'/?success=true&bt={name}', status_code=303)
 
