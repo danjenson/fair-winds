@@ -148,15 +148,16 @@ def bt(addr: str = Form(...), name: str = Form(...)):
     bname = f'bluez_sink.{addr_str}.a2dp_sink'
     try:
         # TODO: add pairing
-        # subprocess.run(['bluetoothctl', 'pair', addr], check=False)
-        subprocess.run(['bluetoothctl', 'connect', addr], check=False)
+        # subprocess.run(['bluetoothctl', 'pair', addr])
+        subprocess.run(['bluetoothctl', 'connect', addr])
         audio_items = subprocess.check_output(['pactl', 'list', 'short', 'sinks']).decode('utf-8').split('\n')
         audio_sinks = {}
         for item in audio_items:
             idx, name, _ = item.split(' ', 2)
             audio_sinks[name] = idx
         if bname in audio_sinks:
-            subprocess.run(['pactl', 'set-default-sink', audio_sinks[bname]]) 
+            subprocess.run(['pactl', 'set-default-sink', audio_sinks[bname]],
+                    check=True) 
     except Exception:
         return RedirectResponse(f'/?success=false&bt={name}', status_code=303)
     return RedirectResponse(f'/?success=true&bt={name}', status_code=303)
