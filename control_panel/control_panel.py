@@ -113,7 +113,7 @@ def bluetooth_scan():
     for item in items:
         if item:
             _, addr, name = item.split(' ', 2)
-            bts.append({'addr': addr, 'name': name.replace(':', '-')})
+            bts.append({'addr': addr.replace(':', '-'), 'name': name})
     return bts
 
 
