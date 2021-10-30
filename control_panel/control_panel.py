@@ -231,6 +231,7 @@ def audio_sinks():
 def set_user():
     os.setgid(1000)
     os.setuid(1000)
+    os.environ['XDG_RUNTIME_DIR'] = '/run/user/1000'
 
 
 @app.post('/dvd', response_class=RedirectResponse)
