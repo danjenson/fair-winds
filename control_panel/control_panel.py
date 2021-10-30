@@ -210,18 +210,27 @@ def bt_connect(addr):
 def bt_audio(addr):
     for name, idx in audio_sinks().items():
         if addr.replace(':', '_') in name:
-            subprocess.run(['pactl', 'set-default-sink', idx])
+            # NOTE: pactl must be run in userspace
+            subprocess.run(['pactl', 'set-default-sink', idx],
+                           preexec_fn=set_user)
 
 
 def audio_sinks():
-    audio_items = subprocess.check_output(['pactl', 'list', 'short', 'sinks'
-                                           ]).decode('utf-8').split('\n')
+    # NOTE: pactl must be run in userspace
+    audio_items = subprocess.check_output(
+        ['pactl', 'list', 'short', 'sinks'],
+        preexec_fn=set_user).decode('utf-8').split('\n')
     audio_sinks = {}
     for item in audio_items:
         if item:
             idx, name, _ = item.split('\t', 2)
             audio_sinks[name] = idx
     return audio_sinks
+
+
+def set_user():
+    os.setgid(1000)
+    os.setuid(1000)
 
 
 @app.post('/dvd', response_class=RedirectResponse)
