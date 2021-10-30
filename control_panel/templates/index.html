@@ -42,7 +42,7 @@
             type="button"
             role="tab"
             aria-controls="wifi-tab-content"
-            aria-selected="true"
+            aria-selected="{% if not bt %}true{% else %}false"
           >
             WiFi
           </button>
@@ -54,7 +54,7 @@
             type="button"
             role="tab"
             aria-controls="blueooth-tab-content"
-            aria-selected="false"
+            aria-selected="{% if bt %}true{% else %}false"
           >
             Bluetooth
           </button>
