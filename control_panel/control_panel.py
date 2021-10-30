@@ -146,14 +146,17 @@ def wifi(ssid: str = Form(...),
 def bt(addr: str = Form(...), name: str = Form(...)):
     addr_str = addr.replace(':', '_')
     bname = f'bluez_sink.{addr_str}.a2dp_sink'
-    with open('/tmp/error.log', 'w') as f:
         try:
             sinks = audio_sinks()
+            with open('/tmp/error.log', 'w') as f:
+                f.write(f'sinks1 {sinks}')
             if bname not in sinks:
                 # TODO: add pairing
                 # subprocess.run(['bluetoothctl', 'pair', addr])
                 subprocess.run(['bluetoothctl', 'connect', addr], check=True)
             sinks = audio_sinks()
+            with open('/tmp/error_2.log', 'w') as f:
+                f.write(f'sinks1 {sinks}')
             if bname in sinks:
                 subprocess.run(['pactl', 'set-default-sink', sinks[bname]],
                         check=True) 
