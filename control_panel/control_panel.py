@@ -66,11 +66,15 @@ def read_root(request: Request,
               bt_name: Optional[str] = None,
               success: bool = False):
     global aps
+    # ap scan is asynchronous, so initiate
+    dev.RequestScan({})
+    # then wait on bt_scan
+    bts = bt_scan()
+    # updated aps should then be available too
     try:
         aps = wifi_scan()
     except dbus.exceptions.DBusException:
         pass
-    bts = bt_scan()
     dvd = dvd_scan()
     # html does not like ':' in identifiers
     for ap in aps:
@@ -90,7 +94,6 @@ def read_root(request: Request,
 
 
 def wifi_scan():
-    dev.RequestScan({})
     all_aps = sorted([{
         'ssid': ap.Ssid,
         'strength': ap.Strength,
