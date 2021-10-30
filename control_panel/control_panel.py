@@ -164,15 +164,20 @@ def wifi(ssid: str = Form(...),
 
 @app.post('/bt')
 def bt(addr: str = Form(...), name: str = Form(...)):
-    try:
-        if not bt_paired(addr):
-            bt_pair(addr)
-        if not bt_connected(addr):
-            bt_connect(addr)
-        bt_audio(addr)
-    except Exception:
-        return RedirectResponse(f'/?success=false&bt_name={name}',
-                                status_code=303)
+    if not bt_paired(addr):
+        bt_pair(addr)
+    if not bt_connected(addr):
+        bt_connect(addr)
+    bt_audio(addr)
+    # try:
+    #     if not bt_paired(addr):
+    #         bt_pair(addr)
+    #     if not bt_connected(addr):
+    #         bt_connect(addr)
+    #     bt_audio(addr)
+    # except Exception:
+    #     return RedirectResponse(f'/?success=false&bt_name={name}',
+    #                             status_code=303)
     return RedirectResponse(f'/?success=true&bt_name={name}', status_code=303)
 
 
