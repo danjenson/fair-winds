@@ -171,8 +171,9 @@ def bt(addr: str = Form(...), name: str = Form(...)):
             bt_connect(addr)
         bt_audio(addr)
     except Exception:
-        return RedirectResponse(f'/?success=false&bt={name}', status_code=303)
-    return RedirectResponse(f'/?success=true&bt={name}', status_code=303)
+        return RedirectResponse(f'/?success=false&bt_name={name}',
+                                status_code=303)
+    return RedirectResponse(f'/?success=true&bt_name={name}', status_code=303)
 
 
 def bt_paired(addr):
