@@ -139,7 +139,7 @@ def bt_scan(timeout=10):
 
 def dvd_scan():
     dvd = None
-    dvds = glob.glob('/run/media/pi/*')
+    dvds = glob.glob('/media/pi/*')
     if dvds:
         dvd = os.path.basename(dvds[0])
     return dvd
