@@ -154,7 +154,6 @@ def bt(addr: str = Form(...), name: str = Form(...)):
         for item in audio_items:
             idx, name, _ = item.split(' ', 2)
             audio_sinks[name] = idx
-        print(audio_sinks)
         if bname in audio_sinks:
             subprocess.run(['pactl', 'set-default-sink', audio_sinks[bname]]) 
     except Exception:
