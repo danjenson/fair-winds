@@ -148,7 +148,7 @@ def bt(addr: str = Form(...), name: str = Form(...)):
     bname = f'bluez_sink.{addr_str}.a2dp_sink'
     try:
         subprocess.run(['bluetoothctl', 'pair', addr], check=False)
-        subprocess.run(['bluetoothctl', 'connect', addr], check=True)
+        subprocess.run(['bluetoothctl', 'connect', addr], check=False)
         audio_items = subprocess.check_output(['pactl', 'list', 'short', 'sinks']).decode('utf-8').split('\n')
         audio_sinks = {}
         for item in audio_items:

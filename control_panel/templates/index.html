@@ -15,7 +15,7 @@
       #wifi-list {
         max-height: 75vh;
       }
-      #audio-list {
+      #bluetooth-list {
         max-height: 75vh;
       }
       #dvd-container {
@@ -48,15 +48,15 @@
           </button>
           <button
             class="nav-link {% if bt %}active{% endif %}"
-            id="nav-audio-tab"
+            id="nav-bluetooth-tab"
             data-bs-toggle="tab"
-            data-bs-target="#audio-tab-content"
+            data-bs-target="#bluetooth-tab-content"
             type="button"
             role="tab"
             aria-controls="blueooth-tab-content"
             aria-selected="{% if bt %}true{% else %}false{% endif %}"
           >
-            Audio
+            Bluetooth
           </button>
           <button
             class="nav-link"
@@ -195,11 +195,11 @@
         </div>
         <div
           class="tab-pane fade {% if bt %}show active{% endif %}"
-          id="audio-tab-content"
+          id="bluetooth-tab-content"
           role="tabpanel"
-          aria-labelledby="nav-audio-tab"
+          aria-labelledby="nav-bluetooth-tab"
         >
-          <div id="audio-container" class="container my-3">
+          <div id="bluetooth-container" class="container my-3">
             {% if bt and success %}
             <div
               class="alert alert-success alert-dismissible fade show"
@@ -231,7 +231,7 @@
               Scanning can take a minute -- be patient!
             </p>
             <div
-              id="audio-list"
+              id="bluetooth-list"
               class="accordion accordian-flush overflow-auto"
             >
               {% for bt in bts %}
@@ -259,7 +259,7 @@
                   id="flush-collapse-{{ bt['addr'] }}"
                   class="accordion-collapse collapse"
                   aria-labelledby="flush-heading-{{ bt['addr'] }}"
-                  data-bs-parent="#audio-list"
+                  data-bs-parent="#bluetooth-list"
                 >
                   <div class="accordion-body">
                     <form class="row g-3" action="/bt" method="POST">
