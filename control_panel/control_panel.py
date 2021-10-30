@@ -63,7 +63,7 @@ aps = []
 @app.get('/', response_class=HTMLResponse)
 def read_root(request: Request,
               ssid: Optional[str] = None,
-              bt: Optional[str] = None,
+              bt_name: Optional[str] = None,
               success: bool = False):
     global aps
     try:
@@ -81,7 +81,7 @@ def read_root(request: Request,
         'index.html', {
             'request': request,
             'ssid': ssid,
-            'bt': bt,
+            'bt_name': bt_name,
             'success': success,
             'aps': aps,
             'bts': bts,

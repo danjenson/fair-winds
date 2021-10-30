@@ -35,26 +35,26 @@
           role="tablist"
         >
           <button
-            class="nav-link {% if not bt %}active{% endif %}"
+            class="nav-link {% if not bt_name %}active{% endif %}"
             id="nav-wifi-tab"
             data-bs-toggle="tab"
             data-bs-target="#wifi-tab-content"
             type="button"
             role="tab"
             aria-controls="wifi-tab-content"
-            aria-selected="{% if not bt %}true{% else %}false{% endif %}"
+            aria-selected="{% if not bt_name %}true{% else %}false{% endif %}"
           >
             WiFi
           </button>
           <button
-            class="nav-link {% if bt %}active{% endif %}"
+            class="nav-link {% if bt_name %}active{% endif %}"
             id="nav-bluetooth-tab"
             data-bs-toggle="tab"
             data-bs-target="#bluetooth-tab-content"
             type="button"
             role="tab"
             aria-controls="blueooth-tab-content"
-            aria-selected="{% if bt %}true{% else %}false{% endif %}"
+            aria-selected="{% if bt_name %}true{% else %}false{% endif %}"
           >
             Bluetooth
           </button>
@@ -86,7 +86,7 @@
       </nav>
       <div class="tab-content" id="nav-tabContent">
         <div
-          class="tab-pane fade {% if not bt %}show active{% endif %}"
+          class="tab-pane fade {% if not bt_name %}show active{% endif %}"
           id="wifi-tab-content"
           role="tabpanel"
           aria-labelledby="nav-wifi-tab"
@@ -194,18 +194,18 @@
           </div>
         </div>
         <div
-          class="tab-pane fade {% if bt %}show active{% endif %}"
+          class="tab-pane fade {% if bt_name %}show active{% endif %}"
           id="bluetooth-tab-content"
           role="tabpanel"
           aria-labelledby="nav-bluetooth-tab"
         >
           <div id="bluetooth-container" class="container my-3">
-            {% if bt and success %}
+            {% if bt_name and success %}
             <div
               class="alert alert-success alert-dismissible fade show"
               role="alert"
             >
-              Successfully connected to "{{ bt }}"!
+              Successfully connected to "{{ bt_name }}"!
               <button
                 type="button"
                 class="btn-close"
@@ -213,12 +213,12 @@
                 aria-label="Close"
               ></button>
             </div>
-            {% elif bt and not success %}
+            {% elif bt_name and not success %}
             <div
               class="alert alert-danger alert-dismissible fade show"
               role="alert"
             >
-              Failed to connect to "{{ bt }}"!
+              Failed to connect to "{{ bt_name }}"!
               <button
                 type="button"
                 class="btn-close"
