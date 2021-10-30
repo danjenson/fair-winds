@@ -111,8 +111,9 @@ def bluetooth_scan():
                                      'devices']).decode('utf-8').split('\n')
     bts = []
     for item in items:
-        _, addr, name = item.split(' ', 2)
-        bts.append({'addr': addr, 'name': name})
+        if item:
+            _, addr, name = item.split(' ', 2)
+            bts.append({'addr': addr, 'name': name})
     return bts
 
 
