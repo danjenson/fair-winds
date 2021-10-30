@@ -54,9 +54,9 @@
       value after the last `/`
 - `systemctl enable control-panel.service`
 
-5. Open firefox on boot
+5. [Optional] open browser/control-panel
 
-- set chromium home to `localhost:8000`
+- set browser home to `localhost:8000`
 - `vim ~/.config/lxsession/LDXE-pi/autostart`
 
 ```
