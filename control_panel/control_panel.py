@@ -58,7 +58,6 @@ app.mount("/static",
           name='static')
 templates = Jinja2Templates(directory=app_dir.joinpath('templates'))
 aps = []
-bts = []
 
 
 @app.get('/', response_class=HTMLResponse)
@@ -108,11 +107,13 @@ def wifi_scan():
 
 
 def bluetooth_scan():
-    return [{
-        'name': v[2].strip(),
-        'addr': v[1]
-    } for v in subprocess.check_output(['bluetoothctl', 'devices']).decode(
-        'utf-8').split(' ', 2)]
+    items = subprocess.check_output(['bluetoothctl',
+                                     'devices']).decode('utf-8').split('\n')
+    bts = []
+    for item in items:
+        _, addr, name = item.split(' ', 2)
+        bts.append({'addr': addr, 'name': name})
+    return bts
 
 
 def dvd_scan():
