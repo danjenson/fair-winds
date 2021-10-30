@@ -9,7 +9,7 @@
 2. Update and install system packages
 
 - `sudo apt update && sudo apt upgrade`
-- `sudo apt install handbrake vlc libdvdcss2`
+- `sudo apt install handbrake handbrake-cli vlc libdvdcss2`
 - `sudo hostnamectl set-hostname <name>`
 
 3. [Setup as access point](https://www.raspberrypi.com/documentation/computers/configuration.html#setting-up-a-routed-wireless-access-point)
@@ -85,6 +85,8 @@ point-rpi
     - new bthelper (2020-05-12)
       - `wget https://raw.githubusercontent.com/RPi-Distro/pi-bluetooth/master/usr/bin/bthelper`
       - `chmod +755 bthelper && sudo cp bthelper /usr/bin`
+- if dvd playing is acting up:
+  - `sudo dpkg-reconfigure libdvd-pkg`
 
 
 ### Extra
