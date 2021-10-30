@@ -151,6 +151,7 @@ def bt(addr: str = Form(...), name: str = Form(...)):
         if bname not in sinks:
             # TODO: add pairing
             # subprocess.run(['bluetoothctl', 'pair', addr])
+            raise Exception(addr)
             subprocess.run(['bluetoothctl', 'connect', addr], check=True)
         sinks = audio_sinks()
         if bname in sinks:
