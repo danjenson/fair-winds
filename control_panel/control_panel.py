@@ -70,8 +70,13 @@ def read_root(request: Request,
         aps = wifi_scan()
     except dbus.exceptions.DBusException:
         pass
-    bts = bluetooth_scan()
+    bts = bt_scan()
     dvd = dvd_scan()
+    # html does not like ':' in identifiers
+    for ap in aps:
+        ap['mac'] = ap['addr'].replace(':', '-')
+    for bt in bts:
+        bt['addr'] = bt['addr'].replace(':', '-')
     return templates.TemplateResponse(
         'index.html', {
             'request': request,
@@ -91,9 +96,9 @@ def wifi_scan():
         'strength': ap.Strength,
         'freq': ap.Frequency,
         'secured': ap.RsnFlags > 0,
-        'mac': ap.HwAddress.replace(':', '-'),
-        'active': hasattr(ap, 'Ssid') and hasattr(dev.ActiveAccessPoint, 'Ssid') and ap.Ssid == dev.ActiveAccessPoint.Ssid,
-    } for ap in dev.GetAccessPoints() if hasattr(ap, 'Ssid') and ap.Ssid != args.ignore_ssid],
+        'mac': ap.HwAddress,
+        'active': is_active(ap),
+    } for ap in dev.GetAccessPoints() if is_valid(ap)],
                      key=lambda d: d['strength'],
                      reverse=True)
     # only list the strongest ap for each SSID
@@ -106,14 +111,28 @@ def wifi_scan():
     return strongest_aps
 
 
-def bluetooth_scan():
+def is_active(ap):
+    return hasattr(ap, 'Ssid') and hasattr(
+        dev.ActiveAccessPoint,
+        'Ssid') and ap.Ssid == dev.ActiveAccessPoint.Ssid
+
+
+def is_valid(ap):
+    return hasattr(ap, 'Ssid') and ap.Ssid != args.ignore_ssid
+
+
+def bt_scan(timeout=10):
+    try:
+        subprocess.run(['bluetoothctl', 'scan', 'on'], timeout=timeout)
+    except subprocess.TimeoutExpired:
+        pass
     items = subprocess.check_output(['bluetoothctl',
                                      'devices']).decode('utf-8').split('\n')
     bts = []
     for item in items:
         if item:
             _, addr, name = item.split(' ', 2)
-            bts.append({'addr': addr.replace(':', '-'), 'name': name})
+            bts.append({'addr': addr.strip(), 'name': name.strip()})
     return bts
 
 
@@ -142,24 +161,30 @@ def wifi(ssid: str = Form(...),
     return RedirectResponse(f'/?success=true&ssid={ssid}', status_code=303)
 
 
-#TODO: debug
 @app.post('/bt')
 def bt(addr: str = Form(...), name: str = Form(...)):
-    addr_str = addr.replace(':', '_')
-    bname = f'bluez_sink.{addr_str}.a2dp_sink'
     try:
-        sinks = audio_sinks()
-        if bname not in sinks:
-            # TODO: add pairing
-            # subprocess.run(['bluetoothctl', 'pair', addr])
-            subprocess.run(['bluetoothctl', 'connect', addr], check=True)
-        sinks = audio_sinks()
-        if bname in sinks:
-            subprocess.run(['pactl', 'set-default-sink', sinks[bname]],
-                           check=True)
-    except Exception as e:
+        bt_pair(addr)
+        bt_connect(addr)
+        bt_audio(addr)
+    except Exception:
         return RedirectResponse(f'/?success=false&bt={name}', status_code=303)
     return RedirectResponse(f'/?success=true&bt={name}', status_code=303)
+
+
+def bt_pair(addr):
+    subprocess.run(['bluetoothctl', 'pair', addr])
+
+
+def bt_connect(addr):
+    subprocess.run(['bluetoothctl', 'connect', addr])
+
+
+def bt_audio(addr):
+    bname = 'bluez_sink.{}.a2dp_sink'.format(addr.replace(':', '_'))
+    sinks = audio_sinks()
+    if bname in sinks:
+        subprocess.run(['pactl', 'set-default-sink', sinks[bname]])
 
 
 def audio_sinks():
@@ -169,7 +194,7 @@ def audio_sinks():
     for item in audio_items:
         if item:
             idx, name, _ = item.split('\t', 2)
-            audio_sinks[name] = int(idx)
+            audio_sinks[name] = idx
     return audio_sinks
 
 

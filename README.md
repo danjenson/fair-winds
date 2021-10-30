@@ -77,6 +77,15 @@ point-rpi
   && sudo systemctl restart control-panel \
   && systemctl status control-panel
   ```
+- if bluetooth is acting up
+  - `systemctl status bluetooth`
+    - if there are SAP errors
+      - `vim /etc/systemd/system/bluetooth.target.wants/bluetooth.service`
+        - `..../bluetoothd --noplugin=sap`
+    - new bthelper (2020-05-12)
+      - `wget https://raw.githubusercontent.com/RPi-Distro/pi-bluetooth/master/usr/bin/bthelper`
+      - `chmod +755 bthelper && sudo cp bthelper /usr/bin`
+
 
 ### Extra
 
