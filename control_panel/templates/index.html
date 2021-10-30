@@ -86,7 +86,7 @@
       </nav>
       <div class="tab-content" id="nav-tabContent">
         <div
-          class="tab-pane fade show active"
+          class="tab-pane fade {% if not bt %}show active{% endif %}"
           id="wifi-tab-content"
           role="tabpanel"
           aria-labelledby="nav-wifi-tab"
@@ -194,7 +194,7 @@
           </div>
         </div>
         <div
-          class="tab-pane fade"
+          class="tab-pane fade {% if bt %}show active{% endif %}"
           id="bluetooth-tab-content"
           role="tabpanel"
           aria-labelledby="nav-bluetooth-tab"
