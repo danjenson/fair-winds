@@ -16,7 +16,6 @@ from dbus.mainloop.glib import DBusGMainLoop
 
 DBusGMainLoop(set_as_default=True)
 import NetworkManager as nm
-import bluetooth
 import dbus
 import uvicorn
 
@@ -110,10 +109,10 @@ def wifi_scan():
 
 def bluetooth_scan():
     return [{
-        'name': name,
-        'addr': addr.replace(':', '-'),
-        'active': len(bluetooth.find_service(address=addr)) > 0,
-    } for addr, name in bluetooth.discover_devices(lookup_names=True)]
+        'name': v[2].strip(),
+        'addr': v[1]
+    } for v in subprocess.check_output(['bluetoothctl', 'devices']).decode(
+        'utf-8').split(' ', 2)]
 
 
 def dvd_scan():
@@ -143,11 +142,9 @@ def wifi(ssid: str = Form(...),
 
 @app.post('/bt')
 def bt(addr: str = Form(...), name: str = Form(...)):
-    pair = f'bluetoothctl pair {addr}'
-    connect = f'bluetoothctl connect {addr}'
-    subprocess.run(pair.split())
+    # TODO: add pairing too
     try:
-        p_conn = subprocess.run(connect.split(),
+        p_conn = subprocess.run(['bluetoothctl', 'connect', addr],
                                 stderr=subprocess.PIPE,
                                 encoding='utf-8',
                                 check=True)
