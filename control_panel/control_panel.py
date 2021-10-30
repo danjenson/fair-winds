@@ -66,15 +66,13 @@ def read_root(request: Request,
               bt_name: Optional[str] = None,
               success: bool = False):
     global aps
-    # ap scan is asynchronous, so initiate
-    dev.RequestScan({})
-    # then wait on bt_scan
-    bts = bt_scan()
-    # updated aps should then be available too
+    # ap scan is async, so ask before sync bt_scan
     try:
-        aps = wifi_scan()
+        dev.RequestScan({})
     except dbus.exceptions.DBusException:
         pass
+    bts = bt_scan()
+    aps = wifi_scan()
     dvd = dvd_scan()
     # html does not like ':' in identifiers
     for ap in aps:
