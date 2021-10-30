@@ -142,6 +142,7 @@ def wifi(ssid: str = Form(...),
     return RedirectResponse(f'/?success=true&ssid={ssid}', status_code=303)
 
 
+#TODO: debug
 @app.post('/bt')
 def bt(addr: str = Form(...), name: str = Form(...)):
     addr_str = addr.replace(':', '_')
@@ -152,16 +153,18 @@ def bt(addr: str = Form(...), name: str = Form(...)):
             # TODO: add pairing
             # subprocess.run(['bluetoothctl', 'pair', addr])
             subprocess.run(['bluetoothctl', 'connect', addr], check=True)
-        # sinks = audio_sinks()
+        sinks = audio_sinks()
         if bname in sinks:
             subprocess.run(['pactl', 'set-default-sink', sinks[bname]],
-                    check=True) 
+                           check=True)
     except Exception as e:
         return RedirectResponse(f'/?success=false&bt={name}', status_code=303)
     return RedirectResponse(f'/?success=true&bt={name}', status_code=303)
 
+
 def audio_sinks():
-    audio_items = subprocess.check_output(['pactl', 'list', 'short', 'sinks']).decode('utf-8').split('\n')
+    audio_items = subprocess.check_output(['pactl', 'list', 'short', 'sinks'
+                                           ]).decode('utf-8').split('\n')
     audio_sinks = {}
     for item in audio_items:
         if item:
